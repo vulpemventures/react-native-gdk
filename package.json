@@ -34,6 +34,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
+    "prepack": "yarn ios:gdk_prepare && yarn android:gdk_prepare",
     "ios:gdk_prepare": "./npm_scripts/ios_gdk.sh",
     "android:gdk_prepare": "./npm_scripts/android_gdk.sh",
     "release": "release-it"

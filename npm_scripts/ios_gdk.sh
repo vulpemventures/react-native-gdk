@@ -22,7 +22,7 @@ check_command lipo
 
 # remove previous installs
 rm -f gdk-iphone.tar.gz gdk-iphone-sim.tar.gz gdk-iphone-sim-x86_64.tar.gz libgreenaddress_full.a
-rm -rf gdk-iphone gdk-iphonesim-arm64 gdk-iphonesim-x86_64
+rm -rf gdk-iphone gdk-iphonesim-arm64 gdk-iphonesim-x86_64 libgreenaddress_full.xcframework
 
 VERSION="release_0.69.0"
 
