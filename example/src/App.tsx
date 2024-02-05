@@ -1,14 +1,15 @@
 import * as React from "react"
 
 import { StyleSheet, View, Text } from "react-native"
-import { multiply } from "react-native-gdk"
+import Gdk from "react-native-gdk"
 
-const result = multiply(3, 7)
+const gdk = Gdk()
+
 
 const App: React.FunctionComponent = () => {
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: {gdk.generateMnemonic12()}</Text>
     </View>
   )
 }

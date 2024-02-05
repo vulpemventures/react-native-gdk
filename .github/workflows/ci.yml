@@ -97,6 +97,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Fetch Gdk
+        run: |
+          yarn android:gdk_prepare
+
       - name: Build example for Android
         run: |
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
@@ -138,6 +142,11 @@ jobs:
           key: ${{ runner.os }}-cocoapods-${{ hashFiles('example/ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-cocoapods-
+
+      - name: Fetch Gdk and prepare xcframework
+        run: |
+          yarn ios:gdk_prepare
+
 
       - name: Install cocoapods
         if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'

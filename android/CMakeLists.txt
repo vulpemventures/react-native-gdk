@@ -1,15 +1,56 @@
-cmake_minimum_required(VERSION 3.4.1)
-project(Gdk)
+project(NativeGdk)
+cmake_minimum_required(VERSION 3.9.0)
 
+set (PACKAGE_NAME "react-native-gdk")
+set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set (CMAKE_VERBOSE_MAKEFILE ON)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 17)
 
-add_library(react-native-gdk            SHARED
-            ../cpp/react-native-gdk.cpp
-            cpp-adapter.cpp
+include_directories(
+        "../cpp"
+        "../cpp/include"
 )
 
-# Specifies a path to native header files.
-include_directories(
-            ../cpp
+
+find_package(ReactAndroid REQUIRED CONFIG)
+
+add_library(
+        ${PACKAGE_NAME}
+        SHARED
+        ./cpp-adapter.cpp
+        ../cpp/GdkHostObject.cpp
+        ../cpp/json.cpp
+        ../cpp/utils.cpp
+)
+
+find_library(
+        LOG_LIB
+        log
+)
+
+
+
+set_target_properties(
+        ${PACKAGE_NAME} PROPERTIES
+        CXX_STANDARD 17
+        CXX_EXTENSIONS OFF
+        POSITION_INDEPENDENT_CODE ON
+)
+
+
+add_library(ga SHARED IMPORTED)
+set_target_properties(
+    ga
+    PROPERTIES
+    IMPORTED_LOCATION
+    ${CMAKE_SOURCE_DIR}/../libgreenaddress-android/${CMAKE_ANDROID_ARCH_ABI}/libgreenaddress.so
+)
+
+
+target_link_libraries(
+        ${PACKAGE_NAME} # <-- our cpp code
+        ${LOG_LIB} # <-- logcat
+        ga
+        ReactAndroid::jsi # <-- JSI
+        android # <-- Android JNI core
 )

@@ -13,6 +13,8 @@
     "android",
     "ios",
     "cpp",
+    "libgreenaddress_full.xcframework",
+    "libgreenaddress-android",
     "*.podspec",
     "!ios/build",
     "!android/build",
@@ -32,6 +34,8 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
+    "ios:gdk_prepare": "./npm_scripts/ios_gdk.sh",
+    "android:gdk_prepare": "./npm_scripts/android_gdk.sh",
     "release": "release-it"
   },
   "keywords": [
