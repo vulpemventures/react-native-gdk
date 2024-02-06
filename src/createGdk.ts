@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from "react-native"
-import { GdkNativeInterface } from "./GdkNativeInterface"
+import * as GDK from "./GdkNativeInterface"
 
 
 export interface GdkInterface {
@@ -7,10 +7,25 @@ export interface GdkInterface {
    * generates a new bip39 mnemonic with twelve words
    */
   generateMnemonic12: () => string
+  /**
+   * initializes gdk
+   */
+  init: () => void
+  /**
+   * creates a new session
+   */
+  createSession: () => void
+  /**
+   * connects to the network
+   * @param name - network name
+   * @param userAgent - user agent
+   */
+  connect: (name: GDK.Network, userAgent: string) => void
+  register: (hw_device: object, details: GDK.Credentials) => void
 }
 
 declare global {
-  function gdkCreateNewInstance(): GdkNativeInterface
+  function gdkCreateNewInstance(): GDK.GdkNativeInterface
 }
 
 export const createGdk = (): GdkInterface => {
@@ -31,9 +46,25 @@ export const createGdk = (): GdkInterface => {
       }
       throw new Error(message)
     }
+
     NativeGdk.install()
   }
 
-  const gdk: GdkInterface = global.gdkCreateNewInstance()
-  return gdk
+  const gdk = global.gdkCreateNewInstance() as GDK.GdkNativeInterface
+  return {
+    createSession: gdk.createSession,
+    generateMnemonic12: gdk.generateMnemonic12,
+    init: (): void => {
+      try {
+        gdk.init(__DEV__ ? "debug" : "none")
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        if (!(__DEV__ && (module as unknown as { hot: object | undefined }).hot)) {
+          throw error
+        }
+      }
+    },
+    connect: gdk.connect,
+    register: gdk.register
+  }
 }

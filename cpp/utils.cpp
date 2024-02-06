@@ -38,7 +38,7 @@ namespace utils {
         }
         
         errorMessage.append(stringJson);
-        throw new jsi::JSError(rt, errorMessage);
+        throw jsi::JSError(rt, errorMessage);
     }
     
 
@@ -58,5 +58,52 @@ namespace utils {
         return val.getObject(rt);
     }
 
+    int consoleLog(jsi::Runtime& runtime, std::string msg) {
+            std::string msgCopy(msg);
+            jsi::Object globalObject = runtime.global();
+
+            // Access the console object from the global object
+            jsi::Object consoleObject = globalObject.getProperty(runtime, "console").getObject(runtime);
+
+
+            // Get the console.log function
+            jsi::Function consoleLog = consoleObject.getProperty(runtime, "log").getObject(runtime).asFunction(runtime);
+
+
+            // Call console.log with arguments
+            consoleLog.call(runtime, msgCopy);
+            return 0;
+        }
+
+    std::string stringify(jsi::Runtime &runtime, const jsi::Value &value) {
+        jsi::Object globalObject = runtime.global();
+        
+        jsi::Object jsonObject = globalObject.getProperty(runtime, "JSON").getObject(runtime);
+        
+        jsi::Function stringifyFunction = jsonObject.getProperty(runtime, "stringify").getObject(runtime).asFunction(runtime);
+
+        jsi::Value jsonString = stringifyFunction.call(runtime, value);
+        return jsonString.getString(runtime).utf8(runtime);
+    }
+
+
+    jsi::Object resolve(TwoFactorCall call) {
+        while (true) {
+            jsi::Object obj = call.getStatus();
+            jsi::Value rawStatus = obj.getProperty(call.rt, "status");
+            
+            jsi::String status = rawStatus.getString(call.rt);
+            
+            if (status.utf8(call.rt) == "call") {
+                call.call();
+            } else if (status.utf8(call.rt) == "done") {
+                return obj;
+            } else {
+                jsi::Value rawError = obj.getProperty(call.rt, "error");
+                jsi::String error = rawError.getString(call.rt);
+                throw jsi::JSError(call.rt, error.utf8(call.rt));
+            }
+        }
+    }
 
 }

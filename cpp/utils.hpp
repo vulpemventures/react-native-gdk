@@ -10,6 +10,7 @@
 
 #include <gdk.h>
 #include <jsi/jsi.h>
+#include "TwoFactorCall.hpp"
 
 namespace jsi = facebook::jsi;
 
@@ -18,8 +19,15 @@ namespace utils {
     void wrapCall(int gdk_function_result, jsi::Runtime &rt);
     void getThreadErrorDetails(jsi::Runtime &rt, int errorCode);
 
+    // debug utility
+    int consoleLog(jsi::Runtime &rt, std::string msg);
+
+    // resolve a TwoFactorCall
+    jsi::Object resolve(TwoFactorCall call);
+
     // conversions
     jsi::Object GAJsonToObject(jsi::Runtime &rt, const GA_json *src);
+    std::string stringify(jsi::Runtime &runtime, const jsi::Value &value);
 }
 
 #endif /* utils_hpp */

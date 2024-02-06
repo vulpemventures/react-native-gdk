@@ -1,16 +1,39 @@
 import * as React from "react"
 
-import { StyleSheet, View, Text } from "react-native"
+import { StyleSheet, View, Text, SafeAreaView, Button } from "react-native"
 import Gdk from "react-native-gdk"
 
 const gdk = Gdk()
 
 
 const App: React.FunctionComponent = () => {
+  const [mnemonic, setMnemonic] = React.useState(gdk.generateMnemonic12())
+  const called = React.useRef(false)
+
+  React.useEffect(() => {
+    if (called.current) {
+      return
+    }
+
+    gdk.init()
+    gdk.createSession()
+
+  }, [])
+
   return (
-    <View style={styles.container}>
-      <Text>Result: {gdk.generateMnemonic12()}</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Text>mnemonic: {mnemonic}</Text>
+      <Button title="connect" onPress={() => {
+        gdk.connect("electrum-testnet-liquid", "test-app")
+      }}>
+        Connect
+      </Button>
+      <Button title="register" onPress={() => {
+        gdk.register({}, { mnemonic, password: "" })
+      }}>
+        Connect
+      </Button>
+    </SafeAreaView>
   )
 }
 

@@ -32,11 +32,9 @@ public class GdkModule extends ReactContextBaseJavaModule {
       System.loadLibrary("react-native-gdk");
 
       JavaScriptContextHolder jsContext = getReactApplicationContext().getJavaScriptContextHolder();
-      // if (rootDirectory == null) {
-      //   rootDirectory = getReactApplicationContext().getFilesDir().getAbsolutePath() + "";
-      // }
+      String rootDirectory = getReactApplicationContext().getFilesDir().getAbsolutePath() + "/gdk";
       // Log.i(NAME, "Installing Gdk JSI Bindings fo root directory: " + rootDirectory);
-      nativeInstall(jsContext.get());
+      nativeInstall(jsContext.get(), rootDirectory);
       Log.i(NAME, "Successfully installed Gdk JSI Bindings!");
       return true;
     } catch (Exception exception) {
@@ -45,5 +43,5 @@ public class GdkModule extends ReactContextBaseJavaModule {
     }
   }
 
-  private static native void nativeInstall(long jsiPtr);
+  private static native void nativeInstall(long jsiPtr, String dir);
 }
