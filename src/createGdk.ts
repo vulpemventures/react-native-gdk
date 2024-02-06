@@ -12,16 +12,19 @@ export interface GdkInterface {
    */
   init: () => void
   /**
-   * creates a new session
+   * creates a new session with gdk, this should be called before any other gdk method
    */
   createSession: () => void
   /**
    * connects to the network
+   * This called right after init and before any other gdk method
    * @param name - network name
    * @param userAgent - user agent
    */
   connect: (name: GDK.Network, userAgent: string) => void
   register: (hw_device: object, details: GDK.Credentials) => void
+  login: (hw_device: object, details: GDK.Credentials) => void
+  getSubaccounts: (details: { refresh: boolean }) => object
 }
 
 declare global {
@@ -30,7 +33,7 @@ declare global {
 
 export const createGdk = (): GdkInterface => {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!global.gdkCreateNewInstance) {
+  if (!global.gdkCreateNewInstance || Platform.OS === "android") {
     const NativeGdk = NativeModules.NativeGdk
 
     if (!NativeGdk) {
@@ -52,7 +55,16 @@ export const createGdk = (): GdkInterface => {
 
   const gdk = global.gdkCreateNewInstance() as GDK.GdkNativeInterface
   return {
-    createSession: gdk.createSession,
+    createSession: (): void => {
+      try {
+        gdk.createSession()
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        if (!(__DEV__ && (module as unknown as { hot: object | undefined }).hot)) {
+          throw error
+        }
+      }
+    },
     generateMnemonic12: gdk.generateMnemonic12,
     init: (): void => {
       try {
@@ -65,6 +77,8 @@ export const createGdk = (): GdkInterface => {
       }
     },
     connect: gdk.connect,
-    register: gdk.register
+    register: gdk.register,
+    login: gdk.login,
+    getSubaccounts: gdk.getSubaccounts
   }
 }

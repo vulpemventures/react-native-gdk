@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { StyleSheet, View, Text, SafeAreaView, Button } from "react-native"
+import { StyleSheet, Text, SafeAreaView, Button } from "react-native"
 import Gdk from "react-native-gdk"
 
 const gdk = Gdk()
@@ -25,14 +25,16 @@ const App: React.FunctionComponent = () => {
       <Text>mnemonic: {mnemonic}</Text>
       <Button title="connect" onPress={() => {
         gdk.connect("electrum-testnet-liquid", "test-app")
-      }}>
-        Connect
-      </Button>
+      }}/>
       <Button title="register" onPress={() => {
         gdk.register({}, { mnemonic, password: "" })
-      }}>
-        Connect
-      </Button>
+      }}/>
+      <Button title="login" onPress={() => {
+        gdk.login({}, { mnemonic, password: "" })
+      }}/>
+      <Button title="getSubaccounts" onPress={() => {
+        gdk.getSubaccounts({ refresh: false })
+      }}/>
     </SafeAreaView>
   )
 }

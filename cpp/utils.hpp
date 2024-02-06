@@ -28,6 +28,7 @@ namespace utils {
     // conversions
     jsi::Object GAJsonToObject(jsi::Runtime &rt, const GA_json *src);
     std::string stringify(jsi::Runtime &runtime, const jsi::Value &value);
+    void jsiValueJsonToGAJson(jsi::Runtime &rt, jsi::Value src, GA_json **dest);
 }
 
 #endif /* utils_hpp */

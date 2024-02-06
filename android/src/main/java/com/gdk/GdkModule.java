@@ -33,7 +33,7 @@ public class GdkModule extends ReactContextBaseJavaModule {
 
       JavaScriptContextHolder jsContext = getReactApplicationContext().getJavaScriptContextHolder();
       String rootDirectory = getReactApplicationContext().getFilesDir().getAbsolutePath() + "/gdk";
-      // Log.i(NAME, "Installing Gdk JSI Bindings fo root directory: " + rootDirectory);
+
       nativeInstall(jsContext.get(), rootDirectory);
       Log.i(NAME, "Successfully installed Gdk JSI Bindings!");
       return true;

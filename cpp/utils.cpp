@@ -97,13 +97,20 @@ namespace utils {
             if (status.utf8(call.rt) == "call") {
                 call.call();
             } else if (status.utf8(call.rt) == "done") {
-                return obj;
+                jsi::Object result = obj.getProperty(call.rt, "result").getObject(call.rt);
+                return result;
             } else {
                 jsi::Value rawError = obj.getProperty(call.rt, "error");
                 jsi::String error = rawError.getString(call.rt);
                 throw jsi::JSError(call.rt, error.utf8(call.rt));
             }
         }
+    }
+
+    // transform a jsi value containing a json to string and then to a GA_json
+    void jsiValueJsonToGAJson(jsi::Runtime &rt, jsi::Value src, GA_json **dest) {
+        std::string srcString = utils::stringify(rt, src);
+        utils::wrapCall(GA_convert_string_to_json(srcString.c_str(), dest), rt);
     }
 
 }

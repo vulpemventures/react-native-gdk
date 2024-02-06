@@ -12,4 +12,6 @@ export interface GdkNativeInterface {
   createSession: () => void
   connect: (name: Network, userAgent: string) => void
   register: (hw_device: object, details: Credentials) => void
+  login: (hw_device: object, details: Credentials) => void
+  getSubaccounts: (details: { refresh: boolean }) => object
 }
