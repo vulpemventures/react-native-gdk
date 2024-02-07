@@ -28,12 +28,13 @@ export interface GdkInterface {
 }
 
 declare global {
-  function gdkCreateNewInstance(): GDK.GdkNativeInterface
+  // eslint-disable-next-line no-var
+  var GDK: GDK.GdkNativeInterface
 }
 
 export const createGdk = (): GdkInterface => {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!global.gdkCreateNewInstance || Platform.OS === "android") {
+  if (!global.GDK) {
     const NativeGdk = NativeModules.NativeGdk
 
     if (!NativeGdk) {
@@ -53,7 +54,7 @@ export const createGdk = (): GdkInterface => {
     NativeGdk.install()
   }
 
-  const gdk = global.gdkCreateNewInstance() as GDK.GdkNativeInterface
+  const gdk = global.GDK
   return {
     createSession: (): void => {
       try {

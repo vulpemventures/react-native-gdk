@@ -23,23 +23,10 @@ std::string jstringToString(JNIEnv *env, jstring jstr) {
 }
 
 void install(jsi::Runtime& jsiRuntime, std::string dir) {
+  auto instance = std::make_shared<GdkHostObject>(dir);
+  jsi::Object GDK = jsi::Object::createFromHostObject(jsiRuntime, instance);
+  jsiRuntime.global().setProperty(jsiRuntime, "GDK", std::move(GDK));
 
-    jsiRuntime.global().setProperty(jsiRuntime, "sessionDir", jsi::String::createFromUtf8(jsiRuntime, dir.c_str()));
-
-    auto gdkCreateNewInstance = jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                       jsi::PropNameID::forAscii(jsiRuntime, "gdkCreateNewInstance"),
-                                                                       0,
-                                                                       [&](jsi::Runtime& runtime,
-                                                                          const jsi::Value& thisValue,
-                                                                          const jsi::Value* arguments,
-                                                                          size_t count) -> jsi::Value {
-
-      jsi::String rawDir = runtime.global().getProperty(runtime, "sessionDir").getString(runtime);
-
-      auto instance = std::make_shared<GdkHostObject>(rawDir.utf8(runtime));
-      return jsi::Object::createFromHostObject(runtime, instance);
-    });
-    jsiRuntime.global().setProperty(jsiRuntime, "gdkCreateNewInstance", std::move(gdkCreateNewInstance));
 }
 
 extern "C"

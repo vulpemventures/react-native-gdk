@@ -29,43 +29,37 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install)
     }
     auto& runtime = *jsiRuntime;
 
-    auto gdkCreateNewInstance = jsi::Function::createFromHostFunction(runtime,
-                                                                       jsi::PropNameID::forAscii(runtime, "gdkCreateNewInstance"),
-                                                                       0,
-                                                                         [&](jsi::Runtime& runtime,
-                                                                          const jsi::Value& thisValue,
-                                                                          const jsi::Value* arguments,
-                                                                          size_t count) -> jsi::Value {
-        NSError *error = nil;
-        NSURL *appSupportDirURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
-                                                                         inDomain:NSUserDomainMask
-                                                                        appropriateForURL:nil
-                                                                             create:YES
-                                                                              error:&error];
-        if (error) {
-            throw jsi::JSError(runtime, "Error while getting support directory");
-        }
-        
-            // Append the bundle identifier to the URL
-        NSURL *finalURL = [appSupportDirURL URLByAppendingPathComponent:[[NSBundle mainBundle] bundleIdentifier] isDirectory:YES];
-        
+    NSError *error = nil;
+    NSURL *appSupportDirURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
+                                                                     inDomain:NSUserDomainMask
+                                                                    appropriateForURL:nil
+                                                                         create:YES
+                                                                          error:&error];
+    if (error) {
+        throw jsi::JSError(runtime, "Error while getting support directory");
+    }
+    
+        // Append the bundle identifier to the URL
+    NSURL *finalURL = [appSupportDirURL URLByAppendingPathComponent:[[NSBundle mainBundle] bundleIdentifier] isDirectory:YES];
+    
 
-        // Create the directory
-        if (![[NSFileManager defaultManager] createDirectoryAtURL:finalURL
-                                     withIntermediateDirectories:YES
-                                                      attributes:nil
-                                                           error:&error]) {
-            throw jsi::JSError(runtime, "Error creating session directory");
-        }
+    // Create the directory
+    if (![[NSFileManager defaultManager] createDirectoryAtURL:finalURL
+                                 withIntermediateDirectories:YES
+                                                  attributes:nil
+                                                       error:&error]) {
+        throw jsi::JSError(runtime, "Error creating session directory");
+    }
 
-        NSString* path = [finalURL path];
-        const char* cString = [path UTF8String];
-        
+    NSString* path = [finalURL path];
+    const char* cString = [path UTF8String];
+    
 
-        auto instance = std::make_shared<GdkHostObject>(std::string(cString));
-        return jsi::Object::createFromHostObject(runtime, instance);
-    });
-    runtime.global().setProperty(runtime, "gdkCreateNewInstance", std::move(gdkCreateNewInstance));
+    auto instance = std::make_shared<GdkHostObject>(std::string(cString));
+    jsi::Object GDK = jsi::Object::createFromHostObject(runtime, instance);
+    
+    
+    runtime.global().setProperty(runtime, "GDK", std::move(GDK));
 
     return @true;
 }
