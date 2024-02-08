@@ -10,12 +10,12 @@
 using json = nlohmann::json;
 
 
-
-GdkHostObject::GdkHostObject(std::string dirUrl) {
+GdkHostObject::GdkHostObject(std::string dirUrl, jsi::Runtime &runtime): rt(runtime) {
     sessionDirectoryUrl = dirUrl;
 }
 
 GdkHostObject::~GdkHostObject() {
+    GA_set_notification_handler(session, nullptr, nullptr);
     GA_destroy_session(session);
 }
 
@@ -71,7 +71,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             std::string url(sessionDirectoryUrl);
 
             obj["datadir"] = url;
-            // obj["log_level"] = logLvel.utf8(runtime);
+            obj["log_level"] = logLvel.utf8(runtime);
 
             utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &configs), runtime);
             utils::wrapCall(GA_init(configs), runtime);
@@ -91,12 +91,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-
-            if (session != NULL) {
-                GA_destroy_session(session);
-            }
-
             utils::wrapCall(GA_create_session(&session), runtime);
+                    
             return jsi::Value::undefined();
         });
     }
@@ -207,6 +203,70 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 return utils::resolve(twoFactorCall);
         });
     }
+    
+    if (propName == "createSubaccount") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+                GA_auth_handler *call;
+                GA_json *details;
+                utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::wrapCall(GA_create_subaccount(session, details, &call), runtime);
+
+                TwoFactorCall twoFactorCall(call, runtime);
+
+                return utils::resolve(twoFactorCall);
+        });
+    }
+    
+    if (propName == "getReceiveAddress") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+                GA_auth_handler *call;
+                GA_json *details;
+                utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::wrapCall(GA_get_receive_address(session, details, &call), runtime);
+
+                TwoFactorCall twoFactorCall(call, runtime);
+
+                return utils::resolve(twoFactorCall);
+        });
+    }
+    
+    if (propName == "on") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         2,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+
+                jsi::String event = arguments[0].getString(runtime);
+                
+                std::shared_ptr<jsi::Function> fn = std::make_shared<jsi::Function>(arguments[1].getObject(runtime).asFunction(runtime));
+                
+                
+                handler[event.utf8(runtime)] = fn;
+                
+                return jsi::Value::undefined();
+        });
+    }
+    
 
     return jsi::Value::undefined();
 }

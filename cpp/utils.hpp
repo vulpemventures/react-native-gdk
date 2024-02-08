@@ -11,6 +11,7 @@
 #include <gdk.h>
 #include <jsi/jsi.h>
 #include "TwoFactorCall.hpp"
+#include "GdkHostObject.hpp"
 
 namespace jsi = facebook::jsi;
 
@@ -24,6 +25,10 @@ namespace utils {
 
     // resolve a TwoFactorCall
     jsi::Object resolve(TwoFactorCall call);
+
+
+    // handle notifications
+    void notificationsHandler(void* ctx, GA_json* details);
 
     // conversions
     jsi::Object GAJsonToObject(jsi::Runtime &rt, const GA_json *src);

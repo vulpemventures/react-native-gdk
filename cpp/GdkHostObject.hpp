@@ -10,13 +10,17 @@ using namespace facebook;
 
 class JSI_EXPORT GdkHostObject: public jsi::HostObject {
 public:
-    GdkHostObject(std::string dirUrl);
+    GdkHostObject(std::string dirUrl, jsi::Runtime& rt);
     ~GdkHostObject();
+    GA_session* session;
+    std::string uuid;
+    std::map<std::string, std::shared_ptr<jsi::Function>> handler;
+    jsi::Runtime& rt;
+    
 private:
     std::string sessionDirectoryUrl;
-    GA_session* session;
 
 public:
-  jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
-  std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
+    jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
+    std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
 };

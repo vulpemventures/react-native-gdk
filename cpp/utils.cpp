@@ -113,4 +113,19 @@ namespace utils {
         utils::wrapCall(GA_convert_string_to_json(srcString.c_str(), dest), rt);
     }
 
+
+    void notificationsHandler(void* ctx, GA_json* details) {
+        GdkHostObject* instance = static_cast<GdkHostObject*>(ctx);
+
+        jsi::Object val = utils::GAJsonToObject(instance->rt, details);
+        jsi::String evt = val.getProperty(instance->rt, "event").asString(instance->rt);
+
+        auto connIterator = instance->handler.find(evt.utf8(instance->rt));
+
+        if (connIterator != instance->handler.end()) {
+            std::shared_ptr<jsi::Function> handle = connIterator->second;
+            handle->call(instance->rt, val);
+        }
+    }
+
 }

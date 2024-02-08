@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as React from "react"
 
 import { StyleSheet, Text, SafeAreaView, Button } from "react-native"
@@ -18,6 +19,10 @@ const App: React.FunctionComponent = () => {
     gdk.init()
     gdk.createSession()
 
+    gdk.on("network", (event) => {
+      console.log("network event", event)
+    })
+
   }, [])
 
   return (
@@ -30,10 +35,16 @@ const App: React.FunctionComponent = () => {
         gdk.register({}, { mnemonic, password: "" })
       }}/>
       <Button title="login" onPress={() => {
-        gdk.login({}, { mnemonic, password: "" })
+        console.log(gdk.login({}, { mnemonic, password: "" }))
       }}/>
-      <Button title="getSubaccounts" onPress={() => {
-        gdk.getSubaccounts({ refresh: false })
+      <Button title="get subaccounts" onPress={() => {
+        console.log(gdk.getSubaccounts({ refresh: false }))
+      }}/>
+      <Button title="create subaccount" onPress={() => {
+        console.log(gdk.createSubaccount({ type: "p2wpkh", name: "SINGLE_SIG" }))
+      }}/>
+      <Button title="receive address" onPress={() => {
+        console.log(gdk.getReceiveAddress({ subaccount: 1 }))
       }}/>
     </SafeAreaView>
   )

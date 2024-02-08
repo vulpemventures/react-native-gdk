@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
+import com.blockstream.libgreenaddress.GDKJNI;
 
 @ReactModule(name = GdkModule.NAME)
 public class GdkModule extends ReactContextBaseJavaModule {
@@ -43,5 +44,16 @@ public class GdkModule extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public boolean setNotificationHandler() {
+
+    JavaScriptContextHolder jsContext = getReactApplicationContext().getJavaScriptContextHolder();
+
+    nativeSetNotificationHandler(jsContext.get());
+    return true;
+  }
+
   private static native void nativeInstall(long jsiPtr, String dir);
+  private static native void nativeSetNotificationHandler(long jsiPtr);
+
 }

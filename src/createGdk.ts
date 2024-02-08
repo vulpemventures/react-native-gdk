@@ -22,9 +22,41 @@ export interface GdkInterface {
    * @param userAgent - user agent
    */
   connect: (name: GDK.Network, userAgent: string) => void
+  /**
+   * Registers a new user to gdk calling this method more than once will not cause an error
+   * @param hw_device - leave empty
+   * @param userAgent - credentials used to authenticate the user
+   */
   register: (hw_device: object, details: GDK.Credentials) => void
+  /**
+   * Logs in a user to gdk
+   * @param hw_device - leave empty
+   * @param userAgent - credentials used to authenticate the user
+   */
   login: (hw_device: object, details: GDK.Credentials) => void
+  /**
+   * Lists the user's subaccounts
+   * @param details - subaccount details containing `refresh` If set to true, subaccounts are re-discovered if appropriate for the session type. Note that this will take significantly more time if set
+   */
   getSubaccounts: (details: { refresh: boolean }) => object
+  /**
+   * Creates a new subaccount
+   * @param details - subaccount details: name (unique per wallet) and type
+   */
+  createSubaccount: (details: GDK.CreateSubaccountDetails) => object
+  /**
+   * Get's the receive address for a subaccount
+   * @param details - details: `subaccount` pointer number, `is_internal` will retrieve an address that can be used exclusevely to receive changes from txs defaults false, `ignore_gap_limit` Whether to allow squentially generated addresses to go beyond the "gap_limit" passed to or defaulted by GA_connect. This is potentially dangerous as funds received on such addresses are not synced until an address within the gap_limit receives funds defaults false.
+   */
+  getReceiveAddress: (details: {
+    subaccount: number
+    is_internal?: boolean
+    ignore_gap_limit?: boolean
+  }) => GDK.ReceiveAddressType
+  /**
+   * Adds or overwrites a notification handler
+   */
+  on: GDK.NotificationHandler
 }
 
 declare global {
@@ -55,10 +87,12 @@ export const createGdk = (): GdkInterface => {
   }
 
   const gdk = global.GDK
+
   return {
     createSession: (): void => {
       try {
         gdk.createSession()
+        NativeModules.NativeGdk.setNotificationHandler()
       } catch (error) {
         // eslint-disable-next-line @typescript-eslint/ban-types
         if (!(__DEV__ && (module as unknown as { hot: object | undefined }).hot)) {
@@ -80,6 +114,15 @@ export const createGdk = (): GdkInterface => {
     connect: gdk.connect,
     register: gdk.register,
     login: gdk.login,
-    getSubaccounts: gdk.getSubaccounts
+    getSubaccounts: gdk.getSubaccounts,
+    createSubaccount: gdk.createSubaccount,
+    getReceiveAddress: ({
+      ignore_gap_limit = false,
+      is_internal = false,
+      subaccount
+    }): GDK.ReceiveAddressType => {
+      return gdk.getReceiveAddress({ ignore_gap_limit, is_internal, subaccount })
+    },
+    on: gdk.on
   }
 }
