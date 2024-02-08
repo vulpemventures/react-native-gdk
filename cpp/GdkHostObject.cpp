@@ -29,6 +29,15 @@ std::vector<jsi::PropNameID> GdkHostObject::getPropertyNames(jsi::Runtime& rt) {
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("connect")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("register")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getSubaccounts")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("addListener")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("removeListener")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("validateMnemonic")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getTransactions")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getUnspentOutputs")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("refresh")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getFeeEstimates")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPreviousAddresses")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getMnemonic")));
     return result;
 }
 
@@ -248,7 +257,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
         });
     }
     
-    if (propName == "on") {
+    if (propName == "addListener") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
                                                          2,
@@ -269,6 +278,177 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
         });
     }
     
+    if (propName == "removeListener") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+
+                std::string eventName = arguments[0].getString(runtime).utf8(runtime);
+                
+                auto it = handler.find(eventName);
+                if (it != handler.end()) {
+                    handler.erase(it);
+                }
+                                
+                return jsi::Value::undefined();
+        });
+    }
+    
+    if (propName == "validateMnemonic") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+
+                uint32_t valid = 0;
+                
+                std::string mnemonic = arguments[0].getString(runtime).utf8(runtime);
+                
+                utils::wrapCall(GA_validate_mnemonic(mnemonic.c_str(), &valid), runtime);
+                
+                return jsi::Value(valid == GA_TRUE);
+        });
+    }
+    
+    if (propName == "getTransactions") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+
+                GA_auth_handler *call;
+                GA_json *details;
+                utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::wrapCall(GA_get_transactions(session, details, &call), runtime);
+
+                TwoFactorCall twoFactorCall(call, runtime);
+
+                return utils::resolve(twoFactorCall);
+        });
+    }
+    
+    if (propName == "getUnspentOutputs") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+
+                GA_auth_handler *call;
+                GA_json *details;
+                utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::wrapCall(GA_get_unspent_outputs(session, details, &call), runtime);
+
+                TwoFactorCall twoFactorCall(call, runtime);
+
+                return utils::resolve(twoFactorCall);
+        });
+    }
+    
+    if (propName == "refresh") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         0,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *configs;
+            json obj;
+
+
+            obj["icons"] = true;
+            obj["assets"] = true;
+            obj["refresh"] = true;
+
+            utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &configs), runtime);
+            utils::wrapCall(GA_refresh_assets(session, configs), runtime);
+
+            GA_destroy_json(configs);
+
+            return jsi::Value::undefined();
+        });
+    }
+    
+    if (propName == "getFeeEstimates") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         0,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *estimates;
+            
+            utils::wrapCall(GA_get_fee_estimates(session, &estimates), runtime);
+            jsi::Object res = utils::GAJsonToObject(runtime, estimates);
+            GA_destroy_json(estimates);
+
+            return res;
+        });
+    }
+    
+    if (propName == "getPreviousAddresses") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_auth_handler *call;
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+            
+            utils::wrapCall(GA_get_previous_addresses(session, details, &call), runtime);
+
+            TwoFactorCall twoFactorCall(call, runtime);
+
+            return utils::resolve(twoFactorCall);
+        });
+    }
+    
+    if (propName == "getMnemonic") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_auth_handler *call;
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+            
+            utils::wrapCall(GA_get_credentials(session, details, &call), runtime);
+
+            TwoFactorCall twoFactorCall(call, runtime);
+
+            return utils::resolve(twoFactorCall);
+        });
+    }
 
     return jsi::Value::undefined();
 }

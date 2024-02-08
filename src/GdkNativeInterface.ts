@@ -1,74 +1,18 @@
 // this represents the native module type
+import type * as GDK from "./types"
 
-export type Network = "electrum-testnet-liquid" | "electrum-liduid"
-export type Credentials = {
-  mnemonic: string
-  password: string
-}
-export type SubaccountType = "p2sh-p2wpkh" | "p2wpkh" | "p2pkh" | "2of2_no_recovery" | "2of3"
-export type CreateSubaccountDetails = {
-  name: string
-  type: SubaccountType
-}
-
-export type Events = {
-  network: {
-    event: "network"
-    network: {
-      wait_ms: number
-      current_state: "connected" | "disconnected"
-      next_state: "connected" | "disconnected"
-    }
-  }
-  block: {
-    event: "block"
-    block: {
-      block_hash: string
-      number: number
-      initial_timestamp: number
-      previous_hash: string
-    }
-  }
-}
-
-
-export type EventType = keyof Events
-export type NotificationHandler = <T extends EventType>(event: T, fn: (eventData: Events[T]) => void) => void
-
-export type Subaccount = {
-  bip44_discovered: false
-  hidden: false
-  name: ""
-  pointer: 0
-  receiving_id: ""
-  required_ca: 0
-  type: SubaccountType
-}
-
-export type ReceiveAddressType = {
-  address: string
-  address_type: "csv" | "p2sh" | "p2wsh" | "p2pkh" | "p2sh-p2wpkh" | "p2wpkh"
-  blinding_key: string
-  is_confidential: boolean
-  is_internal: boolean
-  pointer: boolean
-  scriptpubkey: string
-  subaccount: number
-  unconfidential_address: string
-  user_path: number[]
-}
 
 export interface GdkNativeInterface {
   generateMnemonic12: () => string
   init: (log_level: "debug" | "none") => void
   createSession: () => void
-  connect: (name: Network, userAgent: string) => void
-  register: (hw_device: object, details: Credentials) => void
-  login: (hw_device: object, details: Credentials) => void
+  connect: (name: GDK.Network, userAgent: string) => void
+  register: (hw_device: object, details: GDK.Credentials) => void
+  login: (hw_device: object, details: GDK.Credentials) => void
   getSubaccounts: (details: { refresh: boolean }) => {
-    subaccounts: Subaccount[]
+    subaccounts: GDK.Subaccount[]
   }
-  createSubaccount: (details: CreateSubaccountDetails) => {
+  createSubaccount: (details: GDK.CreateSubaccountDetails) => {
     bip44_discovered: boolean
     core_descriptors: string[]
     hidden: boolean
@@ -76,13 +20,20 @@ export interface GdkNativeInterface {
     pointer: number
     receiving_id: string
     required_ca: number
-    type: SubaccountType
+    type: GDK.SubaccountType
     user_path: number[]
   }
   getReceiveAddress: (details: {
     subaccount: number
     is_internal: boolean
     ignore_gap_limit: boolean
-  }) => ReceiveAddressType
-  on: NotificationHandler
+  }) => GDK.ReceiveAddressType
+  addListener: GDK.NotificationHandler
+  removeListener: (evt: GDK.EventType) => void
+  validateMnemonic: (mnemonic: string) => boolean
+  getTransactions: (details: GDK.GetTransactionsReq) => { transactions: GDK.Transaction[] }
+  getUnspentOutputs: (details: GDK.GetSubaccountReq) => { unspent_outputs: GDK.UnspentOutput[] }
+  getFeeEstimates: () => { fees: number[] }
+  getPreviousAddresses: (details: { subaccount: number }) => GDK.GetPreviousAddressesRes
+  getMnemonic: (details: { password: string }) => GDK.GetMenmonicReturnType
 }

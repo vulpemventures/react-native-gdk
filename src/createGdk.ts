@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from "react-native"
-import * as GDK from "./GdkNativeInterface"
+import * as GDK from "./types"
+import { GdkNativeInterface } from "./GdkNativeInterface"
 
 
 export interface GdkInterface {
@@ -56,12 +57,36 @@ export interface GdkInterface {
   /**
    * Adds or overwrites a notification handler
    */
-  on: GDK.NotificationHandler
+  addListener: GDK.NotificationHandler
+  /**
+   * Removes a notification handler
+   */
+  removeListener: (evt: GDK.EventType) => void
+  /**
+   * Validates a mnemonic
+   * @param mnemonic - the mnemonic to validate
+   */
+  validateMnemonic: (mnemonic: string) => boolean
+  /**
+   *  Get's the transactions for a subaccount
+   * @param details - subaccount number and listing parameters
+   * @returns - a list of transactions
+   */
+  getTransactions: (details: GDK.GetTransactionsReq) => { transactions: GDK.Transaction[] }
+  /**
+   * Get's the unspent outputs for a subaccount
+   * @param details
+   * @returns - unspent outputs mapped by relative transaction
+   */
+  getUnspentOutputs: (details: GDK.GetSubaccountReq) => { unspent_outputs: GDK.UnspentOutput[] }
+  getFeeEstimates: () => { fees: number[] }
+  getPreviousAddresses: (details: { subaccount: number }) => GDK.GetPreviousAddressesRes
+  getMnemonic: (details: { password: string }) => GDK.GetMenmonicReturnType
 }
 
 declare global {
   // eslint-disable-next-line no-var
-  var GDK: GDK.GdkNativeInterface
+  var GDK: GdkNativeInterface
 }
 
 export const createGdk = (): GdkInterface => {
@@ -82,9 +107,9 @@ export const createGdk = (): GdkInterface => {
       }
       throw new Error(message)
     }
-
     NativeGdk.install()
   }
+
 
   const gdk = global.GDK
 
@@ -122,6 +147,13 @@ export const createGdk = (): GdkInterface => {
     }): GDK.ReceiveAddressType => {
       return gdk.getReceiveAddress({ ignore_gap_limit, is_internal, subaccount })
     },
-    on: gdk.on
+    addListener: gdk.addListener,
+    removeListener: gdk.removeListener,
+    validateMnemonic: gdk.validateMnemonic,
+    getTransactions: gdk.getTransactions,
+    getUnspentOutputs: gdk.getUnspentOutputs,
+    getFeeEstimates: gdk.getFeeEstimates,
+    getPreviousAddresses: gdk.getPreviousAddresses,
+    getMnemonic: gdk.getMnemonic
   }
 }
