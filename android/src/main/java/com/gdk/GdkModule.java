@@ -44,16 +44,6 @@ public class GdkModule extends ReactContextBaseJavaModule {
     }
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  public boolean setNotificationHandler() {
-
-    JavaScriptContextHolder jsContext = getReactApplicationContext().getJavaScriptContextHolder();
-
-    nativeSetNotificationHandler(jsContext.get());
-    return true;
-  }
-
   private static native void nativeInstall(long jsiPtr, String dir);
-  private static native void nativeSetNotificationHandler(long jsiPtr);
 
 }

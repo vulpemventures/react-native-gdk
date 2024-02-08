@@ -92,6 +92,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 size_t count) -> jsi::Value {
 
             utils::wrapCall(GA_create_session(&session), runtime);
+                
+            utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this), runtime);
                     
             return jsi::Value::undefined();
         });

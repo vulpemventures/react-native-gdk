@@ -92,7 +92,6 @@ export const createGdk = (): GdkInterface => {
     createSession: (): void => {
       try {
         gdk.createSession()
-        NativeModules.NativeGdk.setNotificationHandler()
       } catch (error) {
         // eslint-disable-next-line @typescript-eslint/ban-types
         if (!(__DEV__ && (module as unknown as { hot: object | undefined }).hot)) {

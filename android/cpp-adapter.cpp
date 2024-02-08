@@ -28,29 +28,6 @@ void install(jsi::Runtime& jsiRuntime, std::string dir) {
   jsiRuntime.global().setProperty(jsiRuntime, "GDK", std::move(GDK));
 }
 
-void setNotificationHandler(jsi::Runtime& rt) {
-
-  jsi::Object GDK = rt.global().getProperty(rt, "GDK").getObject(rt);
-  auto i = GDK.getHostObject<GdkHostObject>(rt);
-
-
-  GA_notification_handler handler = [](void *ctx, GA_json* details) -> void {
-    GdkHostObject* instance = static_cast<GdkHostObject*>(ctx);
-
-    jsi::Object val = utils::GAJsonToObject(instance->rt, details);
-    jsi::String evt = val.getProperty(instance->rt, "event").asString(instance->rt);
-
-    auto connIterator = instance->handler.find(evt.utf8(instance->rt));
-
-    if (connIterator != instance->handler.end()) {
-        std::shared_ptr<jsi::Function> handle = connIterator->second;
-        handle->call(instance->rt, val);
-    }
-  };
-
-  GA_set_notification_handler(i->session, handler, i.get());
-}
-
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_gdk_GdkModule_nativeInstall(JNIEnv *env, jobject clazz, jlong jsiPtr, jstring dir) {
@@ -58,14 +35,5 @@ Java_com_gdk_GdkModule_nativeInstall(JNIEnv *env, jobject clazz, jlong jsiPtr, j
     auto runtime = reinterpret_cast<jsi::Runtime*>(jsiPtr);
     if (runtime) {
         install(*runtime, dirString);
-    }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_gdk_GdkModule_nativeSetNotificationHandler(JNIEnv *env, jobject clazz, jlong jsiPtr) {
-    auto runtime = reinterpret_cast<jsi::Runtime*>(jsiPtr);
-    if (runtime) {
-        setNotificationHandler(*runtime);
     }
 }
