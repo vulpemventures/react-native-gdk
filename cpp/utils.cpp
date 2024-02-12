@@ -86,23 +86,31 @@ namespace utils {
         return jsonString.getString(runtime).utf8(runtime);
     }
 
+    jsi::Value parse(jsi::Runtime &runtime, std::string src) {
+        jsi::Object globalObject = runtime.global();
+        
+        jsi::Object jsonObject = globalObject.getProperty(runtime, "JSON").getObject(runtime);
+        
+        jsi::Function stringifyFunction = jsonObject.getProperty(runtime, "parse").getObject(runtime).asFunction(runtime);
+        jsi::Value s = jsi::String::createFromUtf8(runtime, src);
+        jsi::Value res = stringifyFunction.call(runtime, s);
+        return res;
+    }
 
-    jsi::Object resolve(TwoFactorCall call) {
+
+    json resolve(TwoFactorCall call) {
         while (true) {
-            jsi::Object obj = call.getStatus();
-            jsi::Value rawStatus = obj.getProperty(call.rt, "status");
-            
-            jsi::String status = rawStatus.getString(call.rt);
-            
-            if (status.utf8(call.rt) == "call") {
+            json obj = call.getStatus();
+            std::string status = obj["status"];
+
+            if (status == "call") {
                 call.call();
-            } else if (status.utf8(call.rt) == "done") {
-                jsi::Object result = obj.getProperty(call.rt, "result").getObject(call.rt);
+            } else if (status == "done") {
+                json result = obj["result"];
                 return result;
             } else {
-                jsi::Value rawError = obj.getProperty(call.rt, "error");
-                jsi::String error = rawError.getString(call.rt);
-                throw jsi::JSError(call.rt, error.utf8(call.rt));
+                json error = obj["error"];
+                throw std::runtime_error(error.dump());
             }
         }
     }
@@ -116,15 +124,18 @@ namespace utils {
 
     void notificationsHandler(void* ctx, GA_json* details) {
         GdkHostObject* instance = static_cast<GdkHostObject*>(ctx);
+        
+        char *stringJson;
+        GA_convert_json_to_string(details, &stringJson);
+        std::string s(stringJson);
+        json res = json::parse(s);
 
-        jsi::Object val = utils::GAJsonToObject(instance->rt, details);
-        jsi::String evt = val.getProperty(instance->rt, "event").asString(instance->rt);
-
-        auto connIterator = instance->handler.find(evt.utf8(instance->rt));
-
+        auto connIterator = instance->handler.find(res["event"]);
         if (connIterator != instance->handler.end()) {
             std::shared_ptr<jsi::Function> handle = connIterator->second;
-            handle->call(instance->rt, val);
+            std::string nativeString(res.dump());
+//            jsi::Value s = jsi::String::createFromUtf8(instance->rt, nativeString);
+            handle->call(instance->rt, nativeString);
         }
     }
 

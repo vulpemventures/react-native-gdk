@@ -9,20 +9,19 @@
 #define TwoFactorCall_hpp
 
 #include <gdk.h>
-#include <jsi/jsi.h>
+#include "json.hpp"
 
-using namespace facebook;
 
+using namespace nlohmann;
 
 class TwoFactorCall {
 
 public:
-    jsi::Runtime &rt;
-    TwoFactorCall(GA_auth_handler* handler, jsi::Runtime &runtime);
+    TwoFactorCall(GA_auth_handler* handler);
 //    ~TwoFactorCall();
     
     void call();
-    jsi::Object getStatus();
+    json getStatus();
  
 private:
     GA_auth_handler* ptr;

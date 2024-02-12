@@ -27,6 +27,10 @@ const App: React.FunctionComponent = () => {
       console.log("transaction event", event)
     })
 
+    gdk.addListener("subaccount", (event) => {
+      console.log("SUBACCOUNT event", event)
+    })
+
     return () => {
       gdk.removeListener("network")
       gdk.removeListener("transaction")

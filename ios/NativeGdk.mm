@@ -1,17 +1,24 @@
 #import <React/RCTBridge+Private.h>
 #import <React/RCTUtils.h>
 #import <jsi/jsi.h>
+#import <jsi/threadsafe.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSFileManager.h>
-
+#include <hermes/hermes.h>
 #import "NativeGdk.h"
 #import <gdk.h>
 #import "GdkHostObject.hpp"
 #import "utils.hpp"
 
 @implementation NativeGdk
+
+@synthesize bridge = _bridge;
+@synthesize methodQueue = _methodQueue;
 RCT_EXPORT_MODULE()
 
++ (BOOL)requiresMainQueueSetup {
+  return YES;
+}
 
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install)
 {

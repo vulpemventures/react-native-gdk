@@ -158,10 +158,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
                 utils::wrapCall(GA_register_user(session, hw_device_json, details_json, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
 
@@ -186,9 +185,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
                 utils::wrapCall(GA_login_user(session, hw_device_json, details_json, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
 
@@ -208,10 +207,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
                 utils::wrapCall(GA_get_subaccounts(session, details, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
     
@@ -230,9 +228,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 
                 utils::wrapCall(GA_create_subaccount(session, details, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
     
@@ -251,9 +249,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 
                 utils::wrapCall(GA_get_receive_address(session, details, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
     
@@ -335,9 +333,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 
                 utils::wrapCall(GA_get_transactions(session, details, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
     
@@ -357,9 +355,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 
                 utils::wrapCall(GA_get_unspent_outputs(session, details, &call), runtime);
 
-                TwoFactorCall twoFactorCall(call, runtime);
-
-                return utils::resolve(twoFactorCall);
+                TwoFactorCall twoFactorCall(call);
+                json res = utils::resolve(twoFactorCall);
+                return utils::parse(runtime, res.dump());
         });
     }
     
@@ -423,9 +421,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             
             utils::wrapCall(GA_get_previous_addresses(session, details, &call), runtime);
 
-            TwoFactorCall twoFactorCall(call, runtime);
-
-            return utils::resolve(twoFactorCall);
+            TwoFactorCall twoFactorCall(call);
+            json res = utils::resolve(twoFactorCall);
+            return utils::parse(runtime, res.dump());
         });
     }
     
@@ -444,9 +442,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             
             utils::wrapCall(GA_get_credentials(session, details, &call), runtime);
 
-            TwoFactorCall twoFactorCall(call, runtime);
-
-            return utils::resolve(twoFactorCall);
+            TwoFactorCall twoFactorCall(call);
+            json res = utils::resolve(twoFactorCall);
+            return utils::parse(runtime, res.dump());
         });
     }
 

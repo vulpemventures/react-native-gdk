@@ -8,7 +8,7 @@
 #include "TwoFactorCall.hpp"
 #include "utils.hpp"
 
-TwoFactorCall::TwoFactorCall(GA_auth_handler* handler, jsi::Runtime &runtime): rt(runtime) {
+TwoFactorCall::TwoFactorCall(GA_auth_handler* handler) {
     ptr = handler;
 }
 
@@ -17,12 +17,15 @@ TwoFactorCall::TwoFactorCall(GA_auth_handler* handler, jsi::Runtime &runtime): r
 //}
 
 void TwoFactorCall::call() {
-    utils::wrapCall(GA_auth_handler_call(ptr), rt);
+    GA_auth_handler_call(ptr);
 }
 
-jsi::Object TwoFactorCall::getStatus() {
-    GA_json *status;
-    utils::wrapCall(GA_auth_handler_get_status(ptr, &status), rt);
-
-    return utils::GAJsonToObject(rt, status);
+json TwoFactorCall::getStatus() {
+    GA_json *resJson;
+    GA_auth_handler_get_status(ptr, &resJson);
+    char *stringJson;
+    GA_convert_json_to_string(resJson, &stringJson);
+    std::string s(stringJson);
+    json res = json::parse(s);
+    return res;
 }

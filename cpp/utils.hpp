@@ -12,7 +12,9 @@
 #include <jsi/jsi.h>
 #include "TwoFactorCall.hpp"
 #include "GdkHostObject.hpp"
+#include "json.hpp"
 
+using json = nlohmann::json;
 namespace jsi = facebook::jsi;
 
 namespace utils {
@@ -24,7 +26,7 @@ namespace utils {
     int consoleLog(jsi::Runtime &rt, std::string msg);
 
     // resolve a TwoFactorCall
-    jsi::Object resolve(TwoFactorCall call);
+    json resolve(TwoFactorCall call);
 
 
     // handle notifications
@@ -33,6 +35,7 @@ namespace utils {
     // conversions
     jsi::Object GAJsonToObject(jsi::Runtime &rt, const GA_json *src);
     std::string stringify(jsi::Runtime &runtime, const jsi::Value &value);
+    jsi::Value parse(jsi::Runtime &runtime, std::string src);
     void jsiValueJsonToGAJson(jsi::Runtime &rt, jsi::Value src, GA_json **dest);
 }
 
