@@ -68,6 +68,18 @@ export type GetSubaccountReq = {
   sort_by?: "oldest" | "newest" | "largest" | "smallest"
 }
 
+export type CreateSubaccountReturnType = {
+  bip44_discovered: boolean
+  core_descriptors: string[]
+  hidden: boolean
+  name: string
+  pointer: number
+  receiving_id: string
+  required_ca: number
+  type: SubaccountType
+  user_path: number[]
+}
+
 export type Subaccount = {
   bip44_discovered: false
   hidden: false

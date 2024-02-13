@@ -44,7 +44,7 @@ export interface GdkInterface {
    * Creates a new subaccount
    * @param details - subaccount details: name (unique per wallet) and type
    */
-  createSubaccount: (details: GDK.CreateSubaccountDetails) => object
+  createSubaccount: (details: GDK.CreateSubaccountDetails) => Promise<GDK.CreateSubaccountReturnType>
   /**
    * Get's the receive address for a subaccount
    * @param details - details: `subaccount` pointer number, `is_internal` will retrieve an address that can be used exclusevely to receive changes from txs defaults false, `ignore_gap_limit` Whether to allow squentially generated addresses to go beyond the "gap_limit" passed to or defaulted by GA_connect. This is potentially dangerous as funds received on such addresses are not synced until an address within the gap_limit receives funds defaults false.

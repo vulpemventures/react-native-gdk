@@ -37,6 +37,21 @@ namespace utils {
     std::string stringify(jsi::Runtime &runtime, const jsi::Value &value);
     jsi::Value parse(jsi::Runtime &runtime, std::string src);
     void jsiValueJsonToGAJson(jsi::Runtime &rt, jsi::Value src, GA_json **dest);
+    
+    struct Promise {
+        Promise(jsi::Runtime &rt, jsi::Function resolve, jsi::Function reject);
+
+        void resolve(const jsi::Value &result);
+        void reject(const std::string &error);
+
+        jsi::Runtime &runtime_;
+        jsi::Function resolve_;
+        jsi::Function reject_;
+    };
+
+    using Promised = std::function<void(jsi::Runtime &rt, std::shared_ptr<Promise>)>;
+    jsi::Value makePromise(jsi::Runtime &rt, const Promised func);
+
 }
 
 #endif /* utils_hpp */

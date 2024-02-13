@@ -12,17 +12,7 @@ export interface GdkNativeInterface {
   getSubaccounts: (details: { refresh: boolean }) => {
     subaccounts: GDK.Subaccount[]
   }
-  createSubaccount: (details: GDK.CreateSubaccountDetails) => {
-    bip44_discovered: boolean
-    core_descriptors: string[]
-    hidden: boolean
-    name: string
-    pointer: number
-    receiving_id: string
-    required_ca: number
-    type: GDK.SubaccountType
-    user_path: number[]
-  }
+  createSubaccount: (details: GDK.CreateSubaccountDetails) => Promise<GDK.CreateSubaccountReturnType>
   getReceiveAddress: (details: {
     subaccount: number
     is_internal: boolean

@@ -52,8 +52,12 @@ const App: React.FunctionComponent = () => {
       <Button title="get subaccounts" onPress={() => {
         console.log(gdk.getSubaccounts({ refresh: false }))
       }}/>
-      <Button title="create subaccount" onPress={() => {
-        console.log(gdk.createSubaccount({ type: "p2wpkh", name: "SINGLE_SIG" }))
+      <Button title="create subaccount" onPress={async() => {
+        try {
+          console.log(await gdk.createSubaccount({ type: "p2wpkh", name: "SINGLE_SIG" }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
       <Button title="fee estimates" onPress={() => {
         console.log(gdk.getFeeEstimates())

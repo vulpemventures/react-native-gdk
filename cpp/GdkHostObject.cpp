@@ -101,9 +101,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 size_t count) -> jsi::Value {
 
             utils::wrapCall(GA_create_session(&session), runtime);
-                
-            utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this), runtime);
-                    
+
+//            utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this), runtime);
+
             return jsi::Value::undefined();
         });
     }
@@ -212,7 +212,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 return utils::parse(runtime, res.dump());
         });
     }
-    
+
     if (propName == "createSubaccount") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -222,18 +222,23 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-                GA_auth_handler *call;
-                GA_json *details;
-                utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
-                
-                utils::wrapCall(GA_create_subaccount(session, details, &call), runtime);
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                    GA_auth_handler *call;
+                    GA_json *details;
+                    utils::jsiValueJsonToGAJson(rt, arguments[0].getObject(rt), &details);
 
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+                    utils::wrapCall(GA_create_subaccount(session, details, &call), rt);
+
+                    TwoFactorCall twoFactorCall(call);
+                    json res = utils::resolve(twoFactorCall);
+
+                    p->resolve(utils::parse(rt, res.dump()));
+                };
+
+                return utils::makePromise(runtime, func);
         });
     }
-    
+
     if (propName == "getReceiveAddress") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -246,7 +251,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 GA_auth_handler *call;
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
-                
+
                 utils::wrapCall(GA_get_receive_address(session, details, &call), runtime);
 
                 TwoFactorCall twoFactorCall(call);
@@ -254,7 +259,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 return utils::parse(runtime, res.dump());
         });
     }
-    
+
     if (propName == "addListener") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -266,16 +271,16 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
 
                 jsi::String event = arguments[0].getString(runtime);
-                
+
                 std::shared_ptr<jsi::Function> fn = std::make_shared<jsi::Function>(arguments[1].getObject(runtime).asFunction(runtime));
-                
-                
+
+
                 handler[event.utf8(runtime)] = fn;
-                
+
                 return jsi::Value::undefined();
         });
     }
-    
+
     if (propName == "removeListener") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -287,16 +292,16 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
 
                 std::string eventName = arguments[0].getString(runtime).utf8(runtime);
-                
+
                 auto it = handler.find(eventName);
                 if (it != handler.end()) {
                     handler.erase(it);
                 }
-                                
+
                 return jsi::Value::undefined();
         });
     }
-    
+
     if (propName == "validateMnemonic") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -308,15 +313,15 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
 
                 uint32_t valid = 0;
-                
+
                 std::string mnemonic = arguments[0].getString(runtime).utf8(runtime);
-                
+
                 utils::wrapCall(GA_validate_mnemonic(mnemonic.c_str(), &valid), runtime);
-                
+
                 return jsi::Value(valid == GA_TRUE);
         });
     }
-    
+
     if (propName == "getTransactions") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -330,7 +335,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 GA_auth_handler *call;
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
-                
+
                 utils::wrapCall(GA_get_transactions(session, details, &call), runtime);
 
                 TwoFactorCall twoFactorCall(call);
@@ -338,7 +343,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 return utils::parse(runtime, res.dump());
         });
     }
-    
+
     if (propName == "getUnspentOutputs") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -352,7 +357,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 GA_auth_handler *call;
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
-                
+
                 utils::wrapCall(GA_get_unspent_outputs(session, details, &call), runtime);
 
                 TwoFactorCall twoFactorCall(call);
@@ -360,7 +365,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 return utils::parse(runtime, res.dump());
         });
     }
-    
+
     if (propName == "refresh") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -386,7 +391,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             return jsi::Value::undefined();
         });
     }
-    
+
     if (propName == "getFeeEstimates") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -397,7 +402,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 size_t count) -> jsi::Value {
 
             GA_json *estimates;
-            
+
             utils::wrapCall(GA_get_fee_estimates(session, &estimates), runtime);
             jsi::Object res = utils::GAJsonToObject(runtime, estimates);
             GA_destroy_json(estimates);
@@ -405,7 +410,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             return res;
         });
     }
-    
+
     if (propName == "getPreviousAddresses") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -418,7 +423,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             GA_auth_handler *call;
             GA_json *details;
             utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
-            
+
             utils::wrapCall(GA_get_previous_addresses(session, details, &call), runtime);
 
             TwoFactorCall twoFactorCall(call);
@@ -426,7 +431,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             return utils::parse(runtime, res.dump());
         });
     }
-    
+
     if (propName == "getMnemonic") {
             return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -439,7 +444,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             GA_auth_handler *call;
             GA_json *details;
             utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
-            
+
             utils::wrapCall(GA_get_credentials(session, details, &call), runtime);
 
             TwoFactorCall twoFactorCall(call);
