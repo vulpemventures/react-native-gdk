@@ -10,8 +10,10 @@
 using json = nlohmann::json;
 
 
-GdkHostObject::GdkHostObject(std::string dirUrl, jsi::Runtime &runtime): rt(runtime) {
+GdkHostObject::GdkHostObject(std::string dirUrl, jsi::Runtime &runtime, std::shared_ptr<react::CallInvoker> jsCallInvoker): invoker(jsCallInvoker), rt(runtime) {
     sessionDirectoryUrl = dirUrl;
+    pool = std::make_shared<ThreadPool>();
+    
 }
 
 GdkHostObject::~GdkHostObject() {
@@ -55,7 +57,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
             char *buffer;
-            utils::wrapCall(GA_generate_mnemonic_12(&buffer), runtime);
+            utils::wrapCall(GA_generate_mnemonic_12(&buffer));
             auto mnemonic = jsi::String::createFromUtf8(runtime, buffer);
             GA_destroy_string(buffer);
             return mnemonic;
@@ -82,8 +84,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             obj["datadir"] = url;
             obj["log_level"] = logLvel.utf8(runtime);
 
-            utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &configs), runtime);
-            utils::wrapCall(GA_init(configs), runtime);
+            utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &configs));
+            utils::wrapCall(GA_init(configs));
 
             GA_destroy_json(configs);
 
@@ -100,9 +102,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-            utils::wrapCall(GA_create_session(&session), runtime);
+            utils::wrapCall(GA_create_session(&session));
 
-//            utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this), runtime);
+            utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this));
 
             return jsi::Value::undefined();
         });
@@ -129,8 +131,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                 obj["user_agent"] = network.utf8(runtime);
                 obj["use_tor"] = false;
 
-                utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &netParams), runtime);
-                utils::wrapCall(GA_connect(session, netParams), runtime);
+                utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &netParams));
+                utils::wrapCall(GA_connect(session, netParams));
 
                 GA_destroy_json(netParams);
 
@@ -147,20 +149,44 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-                GA_auth_handler *call;
-
                 GA_json *hw_device_json;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &hw_device_json);
 
 
                 GA_json *details_json;
                 utils::jsiValueJsonToGAJson(runtime, arguments[1].getObject(runtime), &details_json);
+                
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_register_user(session, hw_device_json, details_json, &call));
 
-                utils::wrapCall(GA_register_user(session, hw_device_json, details_json, &call), runtime);
-
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    pool->queueWork(task);
+                    
+                };
+                
+            
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -173,21 +199,44 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-                GA_auth_handler *call;
-
                 GA_json *hw_device_json;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &hw_device_json);
 
 
                 GA_json *details_json;
                 utils::jsiValueJsonToGAJson(runtime, arguments[1].getObject(runtime), &details_json);
+                
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_login_user(session, hw_device_json, details_json, &call));
 
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    pool->queueWork(task);
+                    
+                };
 
-                utils::wrapCall(GA_login_user(session, hw_device_json, details_json, &call), runtime);
-
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+                
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -200,16 +249,40 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-                GA_auth_handler *call;
 
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_get_subaccounts(session, details, &call));
 
-                utils::wrapCall(GA_get_subaccounts(session, details, &call), runtime);
-
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    pool->queueWork(task);
+                    
+                };
+                
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -221,18 +294,35 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value& thisValue,
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
-
+                GA_json *details;
+                utils::jsiValueJsonToGAJson(rt, arguments[0].getObject(rt), &details);
                 utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
-                    GA_auth_handler *call;
-                    GA_json *details;
-                    utils::jsiValueJsonToGAJson(rt, arguments[0].getObject(rt), &details);
-
-                    utils::wrapCall(GA_create_subaccount(session, details, &call), rt);
-
-                    TwoFactorCall twoFactorCall(call);
-                    json res = utils::resolve(twoFactorCall);
-
-                    p->resolve(utils::parse(rt, res.dump()));
+                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_create_subaccount(session, details, &call));
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    
+                    pool->queueWork(task);
+                    
                 };
 
                 return utils::makePromise(runtime, func);
@@ -248,15 +338,39 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-                GA_auth_handler *call;
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
 
-                utils::wrapCall(GA_get_receive_address(session, details, &call), runtime);
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_get_receive_address(session, details, &call));
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    pool->queueWork(task);
+                    
+                };
 
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -316,7 +430,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
                 std::string mnemonic = arguments[0].getString(runtime).utf8(runtime);
 
-                utils::wrapCall(GA_validate_mnemonic(mnemonic.c_str(), &valid), runtime);
+                utils::wrapCall(GA_validate_mnemonic(mnemonic.c_str(), &valid));
 
                 return jsi::Value(valid == GA_TRUE);
         });
@@ -332,15 +446,38 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 size_t count) -> jsi::Value {
 
 
-                GA_auth_handler *call;
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_get_transactions(session, details, &call));
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    pool->queueWork(task);
+                    
+                };
 
-                utils::wrapCall(GA_get_transactions(session, details, &call), runtime);
-
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -354,15 +491,38 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 size_t count) -> jsi::Value {
 
 
-                GA_auth_handler *call;
                 GA_json *details;
                 utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_get_unspent_outputs(session, details, &call));
+                            TwoFactorCall twoFactorCall(call);
+                            json res = utils::resolve(twoFactorCall);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                            
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                    };
+                    
+                    pool->queueWork(task);
+                                    
+                };
 
-                utils::wrapCall(GA_get_unspent_outputs(session, details, &call), runtime);
-
-                TwoFactorCall twoFactorCall(call);
-                json res = utils::resolve(twoFactorCall);
-                return utils::parse(runtime, res.dump());
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -383,8 +543,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             obj["assets"] = true;
             obj["refresh"] = true;
 
-            utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &configs), runtime);
-            utils::wrapCall(GA_refresh_assets(session, configs), runtime);
+            utils::wrapCall(GA_convert_string_to_json(obj.dump().c_str(), &configs));
+            utils::wrapCall(GA_refresh_assets(session, configs));
 
             GA_destroy_json(configs);
 
@@ -401,13 +561,32 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-            GA_json *estimates;
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_json *estimates;
+                            utils::wrapCall(GA_get_fee_estimates(session, &estimates));
 
-            utils::wrapCall(GA_get_fee_estimates(session, &estimates), runtime);
-            jsi::Object res = utils::GAJsonToObject(runtime, estimates);
-            GA_destroy_json(estimates);
-
-            return res;
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                jsi::Value res = utils::GAJsonToObject(rt, estimates);
+                                
+                                GA_destroy_json(estimates);
+                                p->resolve(res);
+                            });
+                        } catch (utils::Exception e) {
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                        
+                    };
+                    
+                    pool->queueWork(task);
+                                    
+                };
+            
+                return utils::makePromise(runtime, func);
         });
     }
 
@@ -420,15 +599,39 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-            GA_auth_handler *call;
             GA_json *details;
             utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_get_previous_addresses(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                
+            };
 
-            utils::wrapCall(GA_get_previous_addresses(session, details, &call), runtime);
-
-            TwoFactorCall twoFactorCall(call);
-            json res = utils::resolve(twoFactorCall);
-            return utils::parse(runtime, res.dump());
+        
+            return utils::makePromise(runtime, func);
         });
     }
 
@@ -441,15 +644,84 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
 
-            GA_auth_handler *call;
             GA_json *details;
             utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_get_credentials(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
 
-            utils::wrapCall(GA_get_credentials(session, details, &call), runtime);
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "setPin") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
 
-            TwoFactorCall twoFactorCall(call);
-            json res = utils::resolve(twoFactorCall);
-            return utils::parse(runtime, res.dump());
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_encrypt_with_pin(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
         });
     }
 

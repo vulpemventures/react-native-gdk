@@ -212,3 +212,10 @@ export type GetMenmonicReturnType = {
   mnemonic: string
   seed: string
 }
+
+export type PinData = {
+  encrypted_data: string
+  hmac: string
+  pin_identifier: string
+  salt: string
+}

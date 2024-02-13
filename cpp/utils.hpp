@@ -19,8 +19,8 @@ namespace jsi = facebook::jsi;
 
 namespace utils {
     // wraps a call from GA throwing a jsi Error matching the error code
-    void wrapCall(int gdk_function_result, jsi::Runtime &rt);
-    void getThreadErrorDetails(jsi::Runtime &rt, int errorCode);
+    void wrapCall(int gdk_function_result);
+    void getThreadErrorDetails(int errorCode);
 
     // debug utility
     int consoleLog(jsi::Runtime &rt, std::string msg);
@@ -51,6 +51,11 @@ namespace utils {
 
     using Promised = std::function<void(jsi::Runtime &rt, std::shared_ptr<Promise>)>;
     jsi::Value makePromise(jsi::Runtime &rt, const Promised func);
+
+    class Exception : public std::runtime_error {
+    public:
+        explicit Exception(const std::string& message) : std::runtime_error(message) {}
+    };
 
 }
 

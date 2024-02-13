@@ -11,6 +11,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 import com.blockstream.libgreenaddress.GDKJNI;
+import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
+import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 
 @ReactModule(name = GdkModule.NAME)
 public class GdkModule extends ReactContextBaseJavaModule {
@@ -34,8 +36,11 @@ public class GdkModule extends ReactContextBaseJavaModule {
 
       JavaScriptContextHolder jsContext = getReactApplicationContext().getJavaScriptContextHolder();
       String rootDirectory = getReactApplicationContext().getFilesDir().getAbsolutePath() + "/gdk";
+      CallInvokerHolderImpl jsCallInvokerHolder = (CallInvokerHolderImpl) getReactApplicationContext()
+                                                  .getCatalystInstance()
+                                                  .getJSCallInvokerHolder();
 
-      nativeInstall(jsContext.get(), rootDirectory);
+      installNativeJsi(jsContext.get(), jsCallInvokerHolder, rootDirectory);
       Log.i(NAME, "Successfully installed Gdk JSI Bindings!");
       return true;
     } catch (Exception exception) {
@@ -44,6 +49,7 @@ public class GdkModule extends ReactContextBaseJavaModule {
     }
   }
 
-  private static native void nativeInstall(long jsiPtr, String dir);
+
+  private native void installNativeJsi(long jsiPtr, CallInvokerHolderImpl jsCallInvokerHolder, String datadir);
 
 }

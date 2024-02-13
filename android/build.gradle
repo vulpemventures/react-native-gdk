@@ -102,20 +102,29 @@ android {
       path "CMakeLists.txt"
     }
   }
-  // packagingOptions {
-  //   doNotStrip resolveBuildType() == 'debug' ? "**/**/*.so" : ''
-  //   excludes = [
-  //           "META-INF",
-  //           "META-INF/**",
-  //           "**/libjsi.so",
-  //           "**/libc++_shared.so"
-  //   ]
-  // }
+
+  packagingOptions {
+    jniLibs {
+        excludes += [
+          '**/libc++_shared.so',
+          '**/libfbjni.so',
+          '**/libreactnativejni.so',
+          '**/libjsi.so',
+          '**/libreact_nativemodule_core.so',
+          '**/libturbomodulejsijni.so'
+        ]
+    }
+    resources {
+        excludes += ['**/MANIFEST.MF']
+    }
+  }
+
 }
 
 dependencies {
   //noinspection GradleDynamicVersion
   implementation 'com.facebook.react:react-android:+'
+  implementation "com.facebook.react:hermes-android:"
 }
 
 // Resolves "LOCAL_SRC_FILES points to a missing file, Check that libfb.so exists or that its path is correct".

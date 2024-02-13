@@ -1,39 +1,44 @@
+#include <ReactCommon/CallInvokerHolder.h>
+#include <fbjni/fbjni.h>
 #include <jni.h>
 #include <jsi/jsi.h>
 #include "GdkHostObject.hpp"
 
 using namespace facebook;
 
-std::string jstringToString(JNIEnv *env, jstring jstr) {
-    if (jstr == nullptr) {
-        return "";
-    }
+struct GdkModule : jni::JavaClass<GdkModule> {
+  static constexpr auto kJavaDescriptor =
+      "Lcom/gdk/GdkModule;";
 
-    const char *utfChars = env->GetStringUTFChars(jstr, nullptr);
-    if (utfChars == nullptr) {
-        return ""; // Error occurred, handle accordingly
-    }
+  static void registerNatives() {
+    javaClassStatic()->registerNatives(
+        {
+         makeNativeMethod("installNativeJsi",
+                          GdkModule::installNativeJsi)
+        });
+  }
 
-    std::string str(utfChars);
+private:
+  static void installNativeJsi(
+      jni::alias_ref<jni::JObject> thiz, jlong jsiRuntimePtr,
+      jni::alias_ref<react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
+      jni::alias_ref<jni::JString> datadir) {
+    auto jsiRuntime = reinterpret_cast<jsi::Runtime *>(jsiRuntimePtr);
+    auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
+    std::string dir = datadir->toStdString();
 
-    // Release the resources
-    env->ReleaseStringUTFChars(jstr, utfChars);
+    install(*jsiRuntime, jsCallInvoker, dir);
 
-    return str;
-}
+  }
 
-void install(jsi::Runtime& jsiRuntime, std::string dir) {
-  auto instance = std::make_shared<GdkHostObject>(dir, jsiRuntime);
-  jsi::Object GDK = jsi::Object::createFromHostObject(jsiRuntime, instance);
-  jsiRuntime.global().setProperty(jsiRuntime, "GDK", std::move(GDK));
-}
+  static void install(jsi::Runtime& runtime, std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker, std::string datadir) {
+    auto instance = std::make_shared<GdkHostObject>(datadir, runtime, jsCallInvoker);
+    jsi::Object GDK = jsi::Object::createFromHostObject(runtime, instance);
+    runtime.global().setProperty(runtime, "GDK", std::move(GDK));
+  }
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_gdk_GdkModule_nativeInstall(JNIEnv *env, jobject clazz, jlong jsiPtr, jstring dir) {
-    std::string dirString = jstringToString(env, dir);
-    auto runtime = reinterpret_cast<jsi::Runtime*>(jsiPtr);
-    if (runtime) {
-        install(*runtime, dirString);
-    }
+};
+
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
+  return jni::initialize(vm, [] { GdkModule::registerNatives(); });
 }

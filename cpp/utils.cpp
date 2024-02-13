@@ -8,14 +8,16 @@
 #include "utils.hpp"
 
 namespace utils {
-    void getThreadErrorDetails(jsi::Runtime &rt, int errorCode) {
+
+
+    void getThreadErrorDetails(int errorCode) {
         GA_json *details;
         char *stringJson;
         GA_get_thread_error_details(&details);
         int res = GA_convert_json_value_to_string(details, "details", &stringJson);
         GA_destroy_json(details);
         if (res != GA_OK) {
-            throw jsi::JSError(rt, "Cannot get error details, trying to call GA_convert_json_value_to_string, but returned: " + std::to_string(res));
+            throw Exception("Cannot get error details, trying to call GA_convert_json_value_to_string, but returned: " + std::to_string(res));
         }
         
         std::string errorMessage = "";
@@ -38,13 +40,13 @@ namespace utils {
         }
         
         errorMessage.append(stringJson);
-        throw jsi::JSError(rt, errorMessage);
+        throw Exception(errorMessage);
     }
     
 
-    void wrapCall(int gdk_function_result, jsi::Runtime &rt) {
+    void wrapCall(int gdk_function_result) {
         if (gdk_function_result != GA_OK) {
-            getThreadErrorDetails(rt, gdk_function_result);
+            getThreadErrorDetails(gdk_function_result);
         }
     }
 
@@ -106,11 +108,9 @@ namespace utils {
             if (status == "call") {
                 call.call();
             } else if (status == "done") {
-                json result = obj["result"];
-                return result;
+                return obj;
             } else {
-                json error = obj["error"];
-                throw std::runtime_error(error.dump());
+                return obj;
             }
         }
     }
@@ -118,7 +118,7 @@ namespace utils {
     // transform a jsi value containing a json to string and then to a GA_json
     void jsiValueJsonToGAJson(jsi::Runtime &rt, jsi::Value src, GA_json **dest) {
         std::string srcString = utils::stringify(rt, src);
-        utils::wrapCall(GA_convert_string_to_json(srcString.c_str(), dest), rt);
+        utils::wrapCall(GA_convert_string_to_json(srcString.c_str(), dest));
     }
 
 
@@ -134,8 +134,11 @@ namespace utils {
         if (connIterator != instance->handler.end()) {
             std::shared_ptr<jsi::Function> handle = connIterator->second;
             std::string nativeString(res.dump());
-//            jsi::Value s = jsi::String::createFromUtf8(instance->rt, nativeString);
-            handle->call(instance->rt, nativeString);
+
+            std::shared_ptr<react::CallInvoker> i = instance->invoker.lock();
+            i->invokeAsync([=] {
+                handle->call(instance->rt, nativeString);
+            });
         }
     }
 

@@ -4,6 +4,9 @@
 #import <jsi/threadsafe.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSFileManager.h>
+#include <ReactCommon/CallInvoker.h>
+#import <React/RCTUtils.h>
+#import <ReactCommon/RCTTurboModule.h>
 #include <hermes/hermes.h>
 #import "NativeGdk.h"
 #import <gdk.h>
@@ -36,6 +39,7 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install)
         return @false;
     }
     auto& runtime = *jsiRuntime;
+    auto callInvoker = bridge.jsCallInvoker;
 
     NSError *error = nil;
     NSURL *appSupportDirURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
@@ -63,7 +67,7 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install)
     const char* cString = [path UTF8String];
 
 
-    auto instance = std::make_shared<GdkHostObject>(std::string(cString), runtime);
+    auto instance = std::make_shared<GdkHostObject>(std::string(cString), runtime, callInvoker);
     jsi::Object GDK = jsi::Object::createFromHostObject(runtime, instance);
 
     runtime.global().setProperty(runtime, "GDK", std::move(GDK));

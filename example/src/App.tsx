@@ -34,6 +34,7 @@ const App: React.FunctionComponent = () => {
     return () => {
       gdk.removeListener("network")
       gdk.removeListener("transaction")
+      gdk.removeListener("subaccount")
     }
   }, [])
 
@@ -43,14 +44,33 @@ const App: React.FunctionComponent = () => {
       <Button title="connect" onPress={() => {
         gdk.connect("electrum-testnet-liquid", "test-app")
       }}/>
-      <Button title="register" onPress={() => {
-        gdk.register({}, { mnemonic, password: "" })
+      <Button title="register" onPress={async() => {
+        try {
+          await gdk.register({}, { mnemonic, password: "" })
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
-      <Button title="login" onPress={() => {
-        console.log(gdk.login({}, { mnemonic, password: "" }))
+      <Button title="login" onPress={async() => {
+        try {
+          console.log(await gdk.login({}, { mnemonic, password: "" }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
-      <Button title="get subaccounts" onPress={() => {
-        console.log(gdk.getSubaccounts({ refresh: false }))
+      <Button title="set pin" onPress={async() => {
+        try {
+          console.log(await gdk.setPin({ pin: "123456", plaintext: { mnemonic, password: "" } }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
+      }}/>
+      <Button title="get subaccounts" onPress={async() => {
+        try {
+          console.log(await gdk.getSubaccounts({ refresh: false }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
       <Button title="create subaccount" onPress={async() => {
         try {
@@ -59,27 +79,51 @@ const App: React.FunctionComponent = () => {
           console.log("ERROR", error)
         }
       }}/>
-      <Button title="fee estimates" onPress={() => {
-        console.log(gdk.getFeeEstimates())
+      <Button title="fee estimates" onPress={async() => {
+        try {
+          console.log(await gdk.getFeeEstimates())
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
-      <Button title="receive address" onPress={() => {
-        console.log(gdk.getReceiveAddress({ subaccount: 1 }))
+      <Button title="receive address" onPress={async() => {
+        try {
+          console.log(await gdk.getReceiveAddress({ subaccount: 1 }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
       <Button title="validate mnemonic" onPress={() => {
         console.log(gdk.validateMnemonic("not valid mnemonic"))
         console.log(gdk.validateMnemonic(mnemonic))
       }}/>
-      <Button title="get txs" onPress={() => {
-        console.log(gdk.getTransactions({ subaccount: 1, first: 0, count: 10 }))
+      <Button title="get txs" onPress={async() => {
+        try {
+          console.log(await gdk.getTransactions({ subaccount: 1, first: 0, count: 10 }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
-      <Button title="get utxos" onPress={() => {
-        console.log(gdk.getUnspentOutputs({ subaccount: 1, num_confs: 0 }))
+      <Button title="get utxos" onPress={async() => {
+        try {
+          console.log(await gdk.getUnspentOutputs({ subaccount: 1, num_confs: 0 }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
-      <Button title="get prev addresses" onPress={() => {
-        console.log(gdk.getPreviousAddresses({ subaccount: 1 }))
+      <Button title="get prev addresses" onPress={async() => {
+        try {
+          console.log(await gdk.getPreviousAddresses({ subaccount: 1 }))
+        } catch (error) {
+          console.log("ERROR", error)
+        }
       }}/>
-      <Button title="get mnemonic" onPress={() => {
-        console.log(gdk.getMnemonic({ password: "" }))
+      <Button title="get mnemonic" onPress={async() => {
+        try {
+          console.log(await gdk.getMnemonic({ password: "" }))
+        } catch (error) {
+          comsole.log("ERROR", error)
+        }
       }}/>
     </SafeAreaView>
   )

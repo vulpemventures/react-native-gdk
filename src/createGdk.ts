@@ -28,18 +28,18 @@ export interface GdkInterface {
    * @param hw_device - leave empty
    * @param userAgent - credentials used to authenticate the user
    */
-  register: (hw_device: object, details: GDK.Credentials) => void
+  register: (hw_device: object, details: GDK.Credentials) => Promise<void>
   /**
    * Logs in a user to gdk
    * @param hw_device - leave empty
    * @param userAgent - credentials used to authenticate the user
    */
-  login: (hw_device: object, details: GDK.Credentials) => void
+  login: (hw_device: object, details: GDK.Credentials) => Promise<void>
   /**
    * Lists the user's subaccounts
    * @param details - subaccount details containing `refresh` If set to true, subaccounts are re-discovered if appropriate for the session type. Note that this will take significantly more time if set
    */
-  getSubaccounts: (details: { refresh: boolean }) => object
+  getSubaccounts: (details: { refresh: boolean }) => Promise<{ subaccounts: GDK.Subaccount[] }>
   /**
    * Creates a new subaccount
    * @param details - subaccount details: name (unique per wallet) and type
@@ -53,7 +53,7 @@ export interface GdkInterface {
     subaccount: number
     is_internal?: boolean
     ignore_gap_limit?: boolean
-  }) => GDK.ReceiveAddressType
+  }) => Promise<GDK.ReceiveAddressType>
   /**
    * Adds or overwrites a notification handler
    */
@@ -72,16 +72,17 @@ export interface GdkInterface {
    * @param details - subaccount number and listing parameters
    * @returns - a list of transactions
    */
-  getTransactions: (details: GDK.GetTransactionsReq) => { transactions: GDK.Transaction[] }
+  getTransactions: (details: GDK.GetTransactionsReq) => Promise<{ transactions: GDK.Transaction[] }>
   /**
    * Get's the unspent outputs for a subaccount
    * @param details
    * @returns - unspent outputs mapped by relative transaction
    */
-  getUnspentOutputs: (details: GDK.GetSubaccountReq) => { unspent_outputs: GDK.UnspentOutput[] }
-  getFeeEstimates: () => { fees: number[] }
-  getPreviousAddresses: (details: { subaccount: number }) => GDK.GetPreviousAddressesRes
-  getMnemonic: (details: { password: string }) => GDK.GetMenmonicReturnType
+  getUnspentOutputs: (details: GDK.GetSubaccountReq) => Promise<{ unspent_outputs: GDK.UnspentOutput[] }>
+  getFeeEstimates: () => Promise<{ fees: number[] }>
+  getPreviousAddresses: (details: { subaccount: number }) => Promise<GDK.GetPreviousAddressesRes>
+  getMnemonic: (details: { password: string }) => Promise<GDK.GetMenmonicReturnType>
+  setPin: (details: { pin: string, plaintext: GDK.Credentials }) => Promise<{ pin_data: GDK.PinData }>
 }
 
 declare global {
@@ -144,7 +145,7 @@ export const createGdk = (): GdkInterface => {
       ignore_gap_limit = false,
       is_internal = false,
       subaccount
-    }): GDK.ReceiveAddressType => {
+    }): Promise<GDK.ReceiveAddressType> => {
       return gdk.getReceiveAddress({ ignore_gap_limit, is_internal, subaccount })
     },
     addListener: gdk.addListener,
@@ -154,6 +155,7 @@ export const createGdk = (): GdkInterface => {
     getUnspentOutputs: gdk.getUnspentOutputs,
     getFeeEstimates: gdk.getFeeEstimates,
     getPreviousAddresses: gdk.getPreviousAddresses,
-    getMnemonic: gdk.getMnemonic
+    getMnemonic: gdk.getMnemonic,
+    setPin: gdk.setPin
   }
 }
