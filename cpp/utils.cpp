@@ -122,7 +122,9 @@ namespace utils {
     }
 
 
+    // this function will be called by gdk internal websocket to emit notifications
     void notificationsHandler(void* ctx, GA_json* details) {
+        // we pass the host object as ctx through the void* pointer because we need both js runtime and js callinvoker
         GdkHostObject* instance = static_cast<GdkHostObject*>(ctx);
         
         char *stringJson;
@@ -135,6 +137,7 @@ namespace utils {
             std::shared_ptr<jsi::Function> handle = connIterator->second;
             std::string nativeString(res.dump());
 
+            // to access safely the js runtime from another thread we need to call the runtime within the call invoker invoke async
             std::shared_ptr<react::CallInvoker> i = instance->invoker.lock();
             i->invokeAsync([=] {
                 handle->call(instance->rt, nativeString);
@@ -156,14 +159,14 @@ namespace utils {
         reject_.call(runtime_, error);
     }
 
-    jsi::Value makePromise(
-                                       jsi::Runtime &rt,
-                                       const Promised func) {
+    jsi::Value makePromise(jsi::Runtime &rt,const Promised func) {
+        // Grab js global promise object
         jsi::Function JSPromise = rt.global().getPropertyAsFunction(rt, "Promise");
+        // function to pass to the promise constructor: new Promise((resolve, reject) => {})
         jsi::Function fn = jsi::Function::createFromHostFunction(
                                                                  rt,
                                                                  jsi::PropNameID::forAscii(rt, "fn"),
-                                                                 2,
+                                                                 2, // resolve, reject
                                                                  [func](
                                                                         jsi::Runtime &rt2,
                                                                         const jsi::Value &thisVal,
