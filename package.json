@@ -133,10 +133,5 @@
         }
       ]
     ]
-  },
-  "codegenConfig": {
-    "name": "RNGdkSpec",
-    "type": "modules",
-    "jsSrcsDir": "src"
   }
 }
