@@ -7,4 +7,4 @@ export default (): GdkInterface => {
 export {
   GdkInterface
 }
-export type * from "./GdkNativeInterface"
+export type * from "./types"

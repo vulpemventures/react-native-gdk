@@ -22,9 +22,15 @@ export interface GdkNativeInterface {
   removeListener: (evt: GDK.EventType) => void
   validateMnemonic: (mnemonic: string) => boolean
   getTransactions: (details: GDK.GetTransactionsReq) => Promise<{ transactions: GDK.Transaction[] }>
-  getUnspentOutputs: (details: GDK.GetSubaccountReq) => Promise<{ unspent_outputs: GDK.UnspentOutput[] }>
+  getUnspentOutputs: (details: GDK.GetSubaccountReq) => Promise<{ unspent_outputs: GDK.GetUnspentOutputsRes }>
   getFeeEstimates: () => Promise<{ fees: number[] }>
   getPreviousAddresses: (details: { subaccount: number }) => Promise<GDK.GetPreviousAddressesRes>
   getMnemonic: (details: { password: string }) => Promise<GDK.GetMenmonicReturnType>
   setPin: (details: { pin: string, plaintext: GDK.Credentials }) => Promise<{ pin_data: GDK.PinData }>
+  getTransactionDetails: (txHash: string) => Promise<GDK.TransactionDetails>
+  createTransaction: (details: GDK.CreateTransactionReq) => Promise<GDK.UnsignedTransaction>
+  blindTransaction: (details: GDK.UnsignedTransaction) => Promise<GDK.BlindedTransaction>
+  signTransaction: (details: GDK.BlindedTransaction | GDK.UnsignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
+  sendTransaction: (details: GDK.SignedBlindedTransaction | GDK.SignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
+  broadcastTransaction: (txHex: string) => Promise<string>
 }

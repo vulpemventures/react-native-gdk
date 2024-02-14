@@ -185,7 +185,7 @@ export type UnspentOutput = {
 }
 
 export type GetUnspentOutputsRes = {
-  [tx: string]: UnspentOutput[]
+  [asset: string]: UnspentOutput[]
 }
 
 export type Address = {
@@ -218,4 +218,136 @@ export type PinData = {
   hmac: string
   pin_identifier: string
   salt: string
+}
+
+export type TransactionDetails = {
+  transaction: string
+  transaction_locktime: number
+  transaction_version: number
+  transaction_vsize: number
+  transaction_weight: number
+  txhash: string
+}
+
+export type Addressee = {
+  address: string
+  satoshi: number
+  asset_id: string
+}
+
+export type CreateTransactionReq = {
+  addressees: Addressee[]
+  utxos: {
+    [asset: string]: UnspentOutput[]
+  }
+  is_partial?: boolean
+}
+
+export type TxChangeOutput = {
+  address: string
+  address_type: AddressType
+  asset_id: string
+  blinding_key: string
+  is_change: true
+  is_confidential: boolean
+  is_internal: boolean
+  pointer: number
+  satoshi: number
+  scriptpubkey: string
+  subaccount: number
+  unconfidential_address: string
+  user_path: number[]
+}
+
+export type TxOutput = {
+  address: string
+  asset_id: string
+  blinding_key: string
+  satoshi: number
+  scriptpubkey: string
+}
+
+export type TxInput = {
+  address_type: AddressType
+  amountblinder: string
+  asset_id: string
+  asset_tag: string
+  assetblinder: string
+  block_height: number
+  commitment: string
+  is_blinded: boolean
+  is_confidential: boolean
+  is_internal: boolean
+  nonce_commitment: boolean
+  pointer: number
+  prevout_script: string
+  pt_idx: number
+  public_key: string
+  satoshi: number
+  sequence: number
+  subaccount: number
+  txhash: string
+  user_path: number[]
+}
+
+export type FeeOutput = {
+  asset_id: string
+  satoshi: number
+  scriptpubkey: string
+}
+
+export type UnsignedTransaction = {
+  addresses: Addressee[]
+  calculated_fee_rate: number
+  change_address: {
+    [asset: string]: Address
+  }
+  change_amount: {
+    [asset: string]: number
+  }
+  change_subaccount: number
+  fee: number
+  fee_rate: number
+  network_fee: number
+  satoshi: {
+    [asset: string]: number
+  }
+  transaction: string
+  transaction_inputs: TxInput[]
+  transaction_locktime: number
+  transaction_outputs: (TxOutput | TxChangeOutput | FeeOutput)[]
+  transaction_version: number
+  transaction_vsize: number
+  transaction_weight: number
+  utxo_strategy: string
+  utxos: {
+    [asset: string]: UnspentOutput[]
+  }
+}
+
+export type BlindedTxOutput = TxOutput & {
+  amountblinder: string
+  assetblinder: string
+  eph_public_key: string
+}
+
+export type BlindedChangeOutput = TxChangeOutput & {
+  amountblinder: string
+  assetblinder: string
+  eph_public_key: string
+}
+
+export type BlindedTransaction = UnsignedTransaction & {
+  transaction: string
+  is_blinded: true
+  transaction_outputs: (BlindedTxOutput | FeeOutput | BlindedChangeOutput)[]
+}
+
+export type SignedTransaction = UnsignedTransaction & {
+  txhash: string
+}
+
+
+export type SignedBlindedTransaction = BlindedTransaction & {
+  txhash: string
 }

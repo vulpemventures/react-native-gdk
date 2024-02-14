@@ -40,6 +40,13 @@ std::vector<jsi::PropNameID> GdkHostObject::getPropertyNames(jsi::Runtime& rt) {
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getFeeEstimates")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPreviousAddresses")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getMnemonic")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("setPin")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getTransactionDetails")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("createTransaction")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("blindTransaction")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("signTransaction")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("sendTransaction")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("broadcastTransaction")));
     return result;
 }
 
@@ -709,6 +716,270 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                             } else {
                                 p->reject(res["error"].dump());
                             }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "getTransactionDetails") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+            std::string hash = arguments[0].getString(runtime).utf8(runtime);
+
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+
+                auto task = [=, &rt](){
+                    try {
+                        GA_json *details;
+                        utils::wrapCall(GA_get_transaction_details(session, hash.c_str(), &details));
+
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            jsi::Value res = utils::GAJsonToObject(rt, details);
+
+                            GA_destroy_json(details);
+                            p->resolve(res);
+                        });
+
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+
+                pool->queueWork(task);
+
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "createTransaction") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_create_transaction(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                json result = res["result"];
+                                // in transaction there is an error field that will be an empty string if all ok, else error.
+                                if (result["error"] != "") {
+                                    p->reject(result["error"].dump());
+                                } else {
+                                    p->resolve(utils::parse(rt, result.dump()));
+                                }
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "blindTransaction") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_blind_transaction(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "signTransaction") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_sign_transaction(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "sendTransaction") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_send_transaction(session, details, &call));
+                        TwoFactorCall twoFactorCall(call);
+                        json res = utils::resolve(twoFactorCall);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "broadcastTransaction") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            std::string txhex = arguments[0].getString(runtime).utf8(runtime);
+            
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        char* txHash;
+                        utils::wrapCall(GA_broadcast_transaction(session, txhex.c_str(), &txHash));
+
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            std::string hash(txHash);
+                            jsi::Value res = jsi::String::createFromUtf8(rt, hash);
+                            p->resolve(res);
                         });
                         
                     } catch (utils::Exception e) {

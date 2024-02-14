@@ -70,19 +70,74 @@ export interface GdkInterface {
   /**
    *  Get's the transactions for a subaccount
    * @param details - subaccount number and listing parameters
-   * @returns - a list of transactions
+   * @returns a list of transactions
    */
   getTransactions: (details: GDK.GetTransactionsReq) => Promise<{ transactions: GDK.Transaction[] }>
   /**
    * Get's the unspent outputs for a subaccount
    * @param details
-   * @returns - unspent outputs mapped by relative transaction
+   * @returns unspent outputs mapped by relative transaction
    */
-  getUnspentOutputs: (details: GDK.GetSubaccountReq) => Promise<{ unspent_outputs: GDK.UnspentOutput[] }>
+  getUnspentOutputs: (details: GDK.GetSubaccountReq) => Promise<{ unspent_outputs: GDK.GetUnspentOutputsRes }>
+  /**
+   * Get's the fee estimates list for each next block
+   * @returns a list of fee estimates
+   */
   getFeeEstimates: () => Promise<{ fees: number[] }>
+  /**
+   * Get's the previous addresses for a subaccount with all their informations
+   * @param details
+   * @returns a list of previous addresses
+   */
   getPreviousAddresses: (details: { subaccount: number }) => Promise<GDK.GetPreviousAddressesRes>
+  /**
+   * Get's the mnemonic using the password
+   * @param details
+   * @returns the mnemonic
+   */
   getMnemonic: (details: { password: string }) => Promise<GDK.GetMenmonicReturnType>
+  /**
+   * Set's a pin for the user
+   * @param details
+   * @returns the pin data that has to be encrypted and stored on the device
+   */
   setPin: (details: { pin: string, plaintext: GDK.Credentials }) => Promise<{ pin_data: GDK.PinData }>
+  /**
+   * Get's the transaction details for a transaction hash, these informations are the one that are not associated with the user's wallet, for example the hex of a transaction
+   * @param txHash
+   * @returns the transaction details
+   */
+  getTransactionDetails: (txHash: string) => Promise<GDK.TransactionDetails>
+  /**
+   * Create a transaction, passing `is_partial` = true will create a partial transaction (psbt)
+   * @param details
+   * @returns an unsigned transaction
+   */
+  createTransaction: (details: GDK.CreateTransactionReq) => Promise<GDK.UnsignedTransaction>
+  /**
+   * Blind a transaction
+   * @param details - the unsigned transaction
+   * @returns a blinded transaction
+   */
+  blindTransaction: (details: GDK.UnsignedTransaction) => Promise<GDK.BlindedTransaction>
+  /**
+   * Sign a transaction
+   * @param details - an unsigned blinded transaction or a regular unsigned transaction
+   * @returns a signed transaction
+   */
+  signTransaction: (details: GDK.BlindedTransaction | GDK.UnsignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
+  /**
+   * Send a transaction
+   * @param details - a signed blinded transaction or a signed transaction
+   * @returns the transaction object containing the txhash
+   */
+  sendTransaction: (details: GDK.SignedBlindedTransaction | GDK.SignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
+  /**
+   * broadcasts a transaction given his hexidecimal representation
+   * @param txHex - the hex of the transaction
+   * @returns the transaction hash
+   */
+  broadcastTransaction: (txHex: string) => Promise<string>
 }
 
 declare global {
@@ -156,6 +211,12 @@ export const createGdk = (): GdkInterface => {
     getFeeEstimates: gdk.getFeeEstimates,
     getPreviousAddresses: gdk.getPreviousAddresses,
     getMnemonic: gdk.getMnemonic,
-    setPin: gdk.setPin
+    setPin: gdk.setPin,
+    getTransactionDetails: gdk.getTransactionDetails,
+    createTransaction: gdk.createTransaction,
+    blindTransaction: gdk.blindTransaction,
+    signTransaction: gdk.signTransaction,
+    sendTransaction: gdk.sendTransaction,
+    broadcastTransaction: gdk.broadcastTransaction
   }
 }
