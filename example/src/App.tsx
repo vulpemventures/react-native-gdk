@@ -14,6 +14,7 @@ const gdk = Gdk()
 
 const App: React.FunctionComponent = () => {
   const [mnemonic] = React.useState(gdk.generateMnemonic12())
+  const [connected, setConnected] = React.useState(false)
   const called = React.useRef(false)
 
   React.useEffect(() => {
@@ -26,6 +27,7 @@ const App: React.FunctionComponent = () => {
 
     gdk.addListener("network", (event) => {
       console.log("network event", event)
+      setConnected(true)
     })
 
     gdk.addListener("transaction", (event) => {
@@ -47,6 +49,7 @@ const App: React.FunctionComponent = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <Text>mnemonic: {mnemonic}</Text>
+        <Text>Connected: {connected ? "yes" : "no"}</Text>
         <Button title="connect" onPress={() => {
           gdk.connect("electrum-testnet-liquid", "test-app")
         }} />

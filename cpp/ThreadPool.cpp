@@ -1,3 +1,4 @@
+// Source: https://github.com/OP-Engineering/op-sqlite/blob/main/cpp/ThreadPool.cpp
 #include "ThreadPool.hpp"
 
 ThreadPool::ThreadPool() : done(false) {

@@ -1,3 +1,4 @@
+// Source https://github.com/OP-Engineering/op-sqlite/blob/main/cpp/ThreadPool.cpp
 #ifndef ThreadPool_h
 #define ThreadPool_h
 
