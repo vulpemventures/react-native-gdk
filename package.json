@@ -54,7 +54,7 @@
   },
   "homepage": "https://github.com/vulpemventures/react-native-gdk/react-native-gdk#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "@vulpemventures:registry": "https://npm.pkg.github.com"
   },
   "devDependencies": {
     "@react-native/eslint-config": "^0.72.2",
@@ -105,10 +105,10 @@
       "tagName": "v${version}"
     },
     "npm": {
-      "publish": true
+      "publish": false
     },
     "github": {
-      "release": true
+      "release": false
     },
     "plugins": {
       "@release-it/conventional-changelog": {
