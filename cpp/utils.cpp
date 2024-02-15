@@ -140,7 +140,8 @@ namespace utils {
             // to access safely the js runtime from another thread we need to call the runtime within the call invoker invoke async
             std::shared_ptr<react::CallInvoker> i = instance->invoker.lock();
             i->invokeAsync([=] {
-                handle->call(instance->rt, nativeString);
+                jsi::Value parsed = utils::parse(instance->rt, nativeString);
+                handle->call(instance->rt, parsed);
             });
         }
     }
