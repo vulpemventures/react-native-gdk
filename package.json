@@ -1,5 +1,5 @@
 {
-  "name": "react-native-gdk",
+  "name": "@vulpemventures/react-native-gdk",
   "version": "0.0.1",
   "description": "react native turbomodule cpp for gdk",
   "main": "lib/commonjs/index",
