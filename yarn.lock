@@ -3380,6 +3380,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vulpemventures/react-native-gdk@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@vulpemventures/react-native-gdk@workspace:."
+  dependencies:
+    "@react-native/eslint-config": ^0.72.2
+    "@release-it/conventional-changelog": ^5.0.0
+    "@types/jest": ^28.1.2
+    "@types/react": ~17.0.21
+    "@types/react-native": 0.70.0
+    "@typescript-eslint/eslint-plugin": ^6.20.0
+    "@typescript-eslint/parser": ^6.20.0
+    del-cli: ^5.0.0
+    eslint: ^8.4.1
+    eslint-plugin-jest: ^27.6.3
+    eslint-plugin-prettier: 5.0.0
+    jest: ^28.1.1
+    pod-install: ^0.1.0
+    prettier: ^3.2.4
+    react: 18.2.0
+    react-native: 0.73.3
+    react-native-builder-bob: ^0.20.0
+    release-it: ^15.0.0
+    turbo: ^1.10.7
+    typescript: ^5.0.2
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  languageName: unknown
+  linkType: soft
+
 "JSONStream@npm:^1.0.4":
   version: 1.3.5
   resolution: "JSONStream@npm:1.3.5"
@@ -10534,36 +10564,6 @@ __metadata:
     pod-install: ^0.1.0
     react: 18.2.0
     react-native: 0.73.3
-  languageName: unknown
-  linkType: soft
-
-"react-native-gdk@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "react-native-gdk@workspace:."
-  dependencies:
-    "@react-native/eslint-config": ^0.72.2
-    "@release-it/conventional-changelog": ^5.0.0
-    "@types/jest": ^28.1.2
-    "@types/react": ~17.0.21
-    "@types/react-native": 0.70.0
-    "@typescript-eslint/eslint-plugin": ^6.20.0
-    "@typescript-eslint/parser": ^6.20.0
-    del-cli: ^5.0.0
-    eslint: ^8.4.1
-    eslint-plugin-jest: ^27.6.3
-    eslint-plugin-prettier: 5.0.0
-    jest: ^28.1.1
-    pod-install: ^0.1.0
-    prettier: ^3.2.4
-    react: 18.2.0
-    react-native: 0.73.3
-    react-native-builder-bob: ^0.20.0
-    release-it: ^15.0.0
-    turbo: ^1.10.7
-    typescript: ^5.0.2
-  peerDependencies:
-    react: "*"
-    react-native: "*"
   languageName: unknown
   linkType: soft
 
