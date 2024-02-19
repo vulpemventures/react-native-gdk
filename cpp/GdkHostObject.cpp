@@ -169,9 +169,11 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         try {
                             GA_auth_handler *call;
                             utils::wrapCall(GA_register_user(session, hw_device_json, details_json, &call));
-
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            
+                            json res = utils::resolve(call);
+                            
+                            GA_destroy_json(hw_device_json);
+                            GA_destroy_json(details_json);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -182,6 +184,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                 }
                             });
                         } catch (utils::Exception e) {
+                            GA_destroy_json(hw_device_json);
+                            GA_destroy_json(details_json);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
@@ -220,8 +224,10 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                             GA_auth_handler *call;
                             utils::wrapCall(GA_login_user(session, hw_device_json, details_json, &call));
 
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            json res = utils::resolve(call);
+                            
+                            GA_destroy_json(hw_device_json);
+                            GA_destroy_json(details_json);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -232,6 +238,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                 }
                             });
                         } catch (utils::Exception e) {
+                            GA_destroy_json(hw_device_json);
+                            GA_destroy_json(details_json);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
@@ -267,8 +275,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                             GA_auth_handler *call;
                             utils::wrapCall(GA_get_subaccounts(session, details, &call));
 
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            json res = utils::resolve(call);
+                            
+                            GA_destroy_json(details);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -279,6 +288,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                 }
                             });
                         } catch (utils::Exception e) {
+                            GA_destroy_json(details);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
@@ -309,8 +319,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         try {
                             GA_auth_handler *call;
                             utils::wrapCall(GA_create_subaccount(session, details, &call));
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            json res = utils::resolve(call);
+                            
+                            GA_destroy_json(details);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -321,12 +332,12 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                 }
                             });
                         } catch (utils::Exception e) {
+                            GA_destroy_json(details);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
                         
                     };
-                    
                     
                     pool->queueWork(task);
                     
@@ -354,8 +365,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         try {
                             GA_auth_handler *call;
                             utils::wrapCall(GA_get_receive_address(session, details, &call));
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            json res = utils::resolve(call);
+                            
+                            GA_destroy_json(details);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -366,6 +378,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                 }
                             });
                         } catch (utils::Exception e) {
+                            GA_destroy_json(details);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
@@ -462,8 +475,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         try {
                             GA_auth_handler *call;
                             utils::wrapCall(GA_get_transactions(session, details, &call));
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            json res = utils::resolve(call);
+                            
+                            GA_destroy_json(details);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -474,6 +488,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                 }
                             });
                         } catch (utils::Exception e) {
+                            GA_destroy_json(details);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
@@ -507,8 +522,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         try {
                             GA_auth_handler *call;
                             utils::wrapCall(GA_get_unspent_outputs(session, details, &call));
-                            TwoFactorCall twoFactorCall(call);
-                            json res = utils::resolve(twoFactorCall);
+                            json res = utils::resolve(call);
+                            GA_destroy_json(details);
                             
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=, &rt] {
@@ -520,6 +535,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                             });
                             
                         } catch (utils::Exception e) {
+                            GA_destroy_json(details);
                             std::shared_ptr<react::CallInvoker> c = invoker.lock();
                             c->invokeAsync([=] { p->reject(e.what()); });
                         }
@@ -615,8 +631,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_get_previous_addresses(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -628,6 +644,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }
@@ -661,8 +678,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_get_credentials(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -674,6 +691,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }
@@ -706,8 +724,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_encrypt_with_pin(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -719,6 +737,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }
@@ -790,8 +809,9 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_create_transaction(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -809,6 +829,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }
@@ -841,8 +862,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_blind_transaction(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -854,6 +875,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }
@@ -886,8 +908,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_sign_transaction(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -899,6 +921,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }
@@ -931,8 +954,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_send_transaction(session, details, &call));
-                        TwoFactorCall twoFactorCall(call);
-                        json res = utils::resolve(twoFactorCall);
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
                         
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=, &rt] {
@@ -944,6 +967,7 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         });
                         
                     } catch (utils::Exception e) {
+                        GA_destroy_json(details);
                         std::shared_ptr<react::CallInvoker> c = invoker.lock();
                         c->invokeAsync([=] { p->reject(e.what()); });
                     }

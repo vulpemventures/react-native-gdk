@@ -5,7 +5,6 @@
 #include "utils.hpp"
 #include "json.hpp"
 #include <ReactCommon/CallInvoker.h>
-#include "TwoFactorCall.hpp"
 #include "ThreadPool.hpp"
 
 using namespace facebook;

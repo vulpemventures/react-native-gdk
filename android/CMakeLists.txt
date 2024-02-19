@@ -27,7 +27,6 @@ add_library(
         ../cpp/GdkHostObject.cpp
         ../cpp/json.cpp
         ../cpp/utils.cpp
-        ../cpp/TwoFactorCall.cpp
         ../cpp/ThreadPool.cpp
 )
 

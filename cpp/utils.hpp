@@ -10,7 +10,6 @@
 
 #include <gdk.h>
 #include <jsi/jsi.h>
-#include "TwoFactorCall.hpp"
 #include "GdkHostObject.hpp"
 #include "json.hpp"
 
@@ -29,8 +28,8 @@ namespace utils {
     // debug utility
     int consoleLog(jsi::Runtime &rt, std::string msg);
 
-    // resolve a TwoFactorCall
-    json resolve(TwoFactorCall call);
+    // resolve a auth handler call
+    json resolve(GA_auth_handler* call);
 
 
     // handle notifications
@@ -42,7 +41,7 @@ namespace utils {
     // definition of js JSON.stringify and JSON.parse
     std::string stringify(jsi::Runtime &runtime, const jsi::Value &value);
     jsi::Value parse(jsi::Runtime &runtime, std::string src);
-    
+
 
     // promise definition
     struct Promise {
@@ -56,7 +55,7 @@ namespace utils {
         jsi::Function reject_;
     };
     using Promised = std::function<void(jsi::Runtime &rt, std::shared_ptr<Promise>)>;
-    
+
     // creates and returns a promise given the funnction to be wrapped in promise
     jsi::Value makePromise(jsi::Runtime &rt, const Promised func);
 

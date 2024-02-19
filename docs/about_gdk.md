@@ -31,13 +31,12 @@ This is the struct that will hold the session informations. It is created using 
 It is stored as a member of the `GdkHostObject` class and it is used to call all GDK functions that require a session.
 
 ## `GA_auth_handler`
-This is the struct that holds the reference to an authenticated function/network call. Use it wrapped with `TwoFactorCall` object and complete the call using `utils::resolve(twoFactorCall)`.
+This is the struct that holds the reference to an authenticated function/network call. Use it wrapped `utils::resolve(call)`.
 
 ```cpp
 GA_auth_handler *call; // create the auth handler
 utils::wrapCall(GA_register_user(session, hw_device_json, details_json, &call)); // make the authenticated net call
-TwoFactorCall twoFactorCall(call); // pass the call to the TwoFactorCall class
-json res = utils::resolve(twoFactorCall); // resolve the call using the utility function
+json res = utils::resolve(call); // resolve the call using the utility function
 
 ```
 

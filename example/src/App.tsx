@@ -55,7 +55,7 @@ const App: React.FunctionComponent = () => {
         }} />
         <Button title="register" onPress={async() => {
           try {
-            await gdk.register({}, { mnemonic, password: "" })
+            console.log(await gdk.register({}, { mnemonic, password: "" }))
           } catch (error) {
             console.log("ERROR", error)
           }

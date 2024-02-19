@@ -99,17 +99,24 @@ namespace utils {
         return res;
     }
 
-
-    json resolve(TwoFactorCall call) {
+    json resolve(GA_auth_handler* call) {
         while (true) {
-            json obj = call.getStatus();
+            GA_json *resJson;
+            GA_auth_handler_get_status(call, &resJson);
+            char *stringJson;
+            GA_convert_json_to_string(resJson, &stringJson);
+            GA_destroy_json(resJson);
+            std::string s(stringJson);
+            json obj = json::parse(s);
             std::string status = obj["status"];
 
             if (status == "call") {
-                call.call();
+                GA_auth_handler_call(call);
             } else if (status == "done") {
+                GA_destroy_auth_handler(call);
                 return obj;
             } else {
+                GA_destroy_auth_handler(call);
                 return obj;
             }
         }
@@ -129,6 +136,7 @@ namespace utils {
         
         char *stringJson;
         GA_convert_json_to_string(details, &stringJson);
+        GA_destroy_json(details);
         std::string s(stringJson);
         json res = json::parse(s);
 

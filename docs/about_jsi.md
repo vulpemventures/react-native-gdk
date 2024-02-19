@@ -27,7 +27,6 @@ react-native-gdk
 │           └── GdkPackage.java
 └── cpp
     ├── GdkHostObject.cpp
-    ├── TwoFactorCall.cpp
     ├── ThreadPool.cpp
     ├── json.cpp
     └── utils.cpp
@@ -49,7 +48,6 @@ react-native-gdk
 `cpp`
 - Contains all the non platform specific code, the core of the application that will be compiled for both platforms
 - `GdkHostObject.cpp` is the host object that will be created in the native runtime and exposed to JavaScript, its methods will be callable from JS
-- `TwoFactorCall.cpp` resolves a GDK http request that requires authentication
 - `utils.cpp` contains some utility functions to semplify the workflows
 - `ThreadPool.cpp` implementation of a thread pool used to execute async tasks,  source here https://github.com/OP-Engineering/op-sqlite/blob/main/cpp/ThreadPool.cpp
 - `json.cpp` contains an implementation of JSON objects in cpp, source here https://github.com/nlohmann/json
@@ -136,8 +134,7 @@ return jsi::Function::createFromHostFunction(runtime, // create function using r
                 try {
                     GA_auth_handler *call;
                     utils::wrapCall(GA_get_receive_address(session, details, &call));
-                    TwoFactorCall twoFactorCall(call);
-                    json res = utils::resolve(twoFactorCall);
+                    json res = utils::resolve(call);
                     // the long running task finishes and we need to resolve or reject the promise
                     // lock the weak pointer to the invoker to gain control of the runtime
                     std::shared_ptr<react::CallInvoker> c = invoker.lock();
