@@ -943,7 +943,7 @@ PODS:
   - React-Mapbuffer (0.73.3):
     - glog
     - React-debug
-  - react-native-gdk (0.0.1):
+  - react-native-gdk (0.0.3):
     - React
     - React-callinvoker
     - React-Core
@@ -1402,7 +1402,7 @@ SPEC CHECKSUMS:
   React-jsitracing: 18b04aa81d7e36ce4d60db121ce0567f9ac4b5ea
   React-logger: cb0dd15ac67b00e7b771ef15203edcb29d4a3f8e
   React-Mapbuffer: d59258be3b0d2280c6ba8964ab6e36ec69211871
-  react-native-gdk: d354336ec13ce1ffb5b9edd0bbbb2f61348658be
+  react-native-gdk: c32c6f2b309d9deefb236955e7721f8b36e7d017
   React-nativeconfig: 4d3076dc3dc498ec49819e4e4225b55d3507f902
   React-NativeModulesApple: 46f14baf36010b22ffd84fd89d5586e4148edfb3
   React-perflogger: 27ccacf853ba725524ef2b4e444f14e34d0837b0

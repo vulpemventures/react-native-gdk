@@ -47,6 +47,8 @@ std::vector<jsi::PropNameID> GdkHostObject::getPropertyNames(jsi::Runtime& rt) {
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("signTransaction")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("sendTransaction")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("broadcastTransaction")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNetworks")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("signPsbt")));
     return result;
 }
 
@@ -114,6 +116,44 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this));
 
             return jsi::Value::undefined();
+        });
+    }
+    
+    if (propName == "getNetworks") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         0,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_json *networks;
+                        utils::wrapCall(GA_get_networks(&networks));
+
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            jsi::Value res = utils::GAJsonToObject(rt, networks);
+                            
+                            GA_destroy_json(networks);
+                            p->resolve(res);
+                        });
+                    } catch (utils::Exception e) {
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                    
+                };
+                
+                pool->queueWork(task);
+                                
+            };
+        
+            return utils::makePromise(runtime, func);
         });
     }
 
@@ -954,6 +994,52 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                     try {
                         GA_auth_handler *call;
                         utils::wrapCall(GA_send_transaction(session, details, &call));
+                        json res = utils::resolve(call);
+                        GA_destroy_json(details);
+                        
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=, &rt] {
+                            if (res.contains("result")) {
+                                p->resolve(utils::parse(rt, res["result"].dump()));
+                            } else {
+                                p->reject(res["error"].dump());
+                            }
+                        });
+                        
+                    } catch (utils::Exception e) {
+                        GA_destroy_json(details);
+                        std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                        c->invokeAsync([=] { p->reject(e.what()); });
+                    }
+                };
+                
+                pool->queueWork(task);
+                                                
+            };
+
+            return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "signPsbt") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                
+            utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                                
+                auto task = [=, &rt](){
+                    try {
+                        GA_auth_handler *call;
+                        utils::wrapCall(GA_psbt_sign(session, details, &call));
                         json res = utils::resolve(call);
                         GA_destroy_json(details);
                         

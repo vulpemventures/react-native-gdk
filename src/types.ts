@@ -1,4 +1,13 @@
-export type Network = "electrum-testnet-liquid" | "electrum-liduid"
+export type Network =
+  "mainnet" |
+  "liquid" |
+  "testnet" |
+  "testnet-liquid" |
+  "electrum-liquid" |
+  "electrum-mainnet" |
+  "electrum-testnet" |
+  "electrum-testnet-liquid"
+
 export type Credentials = {
   mnemonic: string
   password: string
@@ -8,6 +17,10 @@ export type AddressType = "csv" | "p2sh" | "p2wsh" | "p2pkh" | "p2sh-p2wpkh" | "
 export type CreateSubaccountDetails = {
   name: string
   type: SubaccountType
+}
+
+export type GetNetworksRes = {
+  all_networks: Network[]
 }
 
 export type Events = {
@@ -350,4 +363,12 @@ export type SignedTransaction = UnsignedTransaction & {
 
 export type SignedBlindedTransaction = BlindedTransaction & {
   txhash: string
+}
+
+export type PsbtSignDetails = {
+  psbt: string
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  utxos: unknown[]
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  blinding_nonces?: unknown[]
 }

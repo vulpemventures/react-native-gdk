@@ -16,6 +16,7 @@ export interface GdkInterface {
    * creates a new session with gdk, this should be called before any other gdk method
    */
   createSession: () => void
+  getNetworks: () => Promise<GDK.GetNetworksRes>
   /**
    * connects to the network
    * This called right after init and before any other gdk method
@@ -138,6 +139,7 @@ export interface GdkInterface {
    * @returns the transaction hash
    */
   broadcastTransaction: (txHex: string) => Promise<string>
+  signPsbt: (details: GDK.PsbtSignDetails) => Promise<object>
 }
 
 declare global {
@@ -217,6 +219,8 @@ export const createGdk = (): GdkInterface => {
     blindTransaction: gdk.blindTransaction,
     signTransaction: gdk.signTransaction,
     sendTransaction: gdk.sendTransaction,
-    broadcastTransaction: gdk.broadcastTransaction
+    broadcastTransaction: gdk.broadcastTransaction,
+    getNetworks: gdk.getNetworks,
+    signPsbt: gdk.signPsbt
   }
 }

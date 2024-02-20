@@ -6,6 +6,7 @@ export interface GdkNativeInterface {
   generateMnemonic12: () => string
   init: (log_level: "debug" | "none") => void
   createSession: () => void
+  getNetworks: () => Promise<GDK.GetNetworksRes>
   connect: (name: GDK.Network, userAgent: string) => void
   register: (hw_device: object, details: GDK.Credentials) => Promise<void>
   login: (hw_device: object, details: GDK.Credentials) => Promise<void>
@@ -33,4 +34,5 @@ export interface GdkNativeInterface {
   signTransaction: (details: GDK.BlindedTransaction | GDK.UnsignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
   sendTransaction: (details: GDK.SignedBlindedTransaction | GDK.SignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
   broadcastTransaction: (txHex: string) => Promise<string>
+  signPsbt: (details: GDK.PsbtSignDetails) => Promise<object>
 }
