@@ -16,8 +16,8 @@ export interface GdkNativeInterface {
   createSubaccount: (details: GDK.CreateSubaccountDetails) => Promise<GDK.CreateSubaccountReturnType>
   getReceiveAddress: (details: {
     subaccount: number
-    is_internal: boolean
-    ignore_gap_limit: boolean
+    is_internal?: boolean
+    ignore_gap_limit?: boolean
   }) => Promise<GDK.ReceiveAddressType>
   addListener: GDK.NotificationHandler
   removeListener: (evt: GDK.EventType) => void

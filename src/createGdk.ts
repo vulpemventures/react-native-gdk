@@ -198,13 +198,7 @@ export const createGdk = (): GdkInterface => {
     login: gdk.login,
     getSubaccounts: gdk.getSubaccounts,
     createSubaccount: gdk.createSubaccount,
-    getReceiveAddress: ({
-      ignore_gap_limit = false,
-      is_internal = false,
-      subaccount
-    }): Promise<GDK.ReceiveAddressType> => {
-      return gdk.getReceiveAddress({ ignore_gap_limit, is_internal, subaccount })
-    },
+    getReceiveAddress: gdk.getReceiveAddress,
     addListener: gdk.addListener,
     removeListener: gdk.removeListener,
     validateMnemonic: gdk.validateMnemonic,
