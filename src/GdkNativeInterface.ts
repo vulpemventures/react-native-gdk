@@ -8,8 +8,8 @@ export interface GdkNativeInterface {
   createSession: () => void
   getNetworks: () => Promise<GDK.GetNetworksRes>
   connect: (name: GDK.Network, userAgent: string) => void
-  register: (hw_device: object, details: GDK.Credentials) => Promise<void>
-  login: (hw_device: object, details: GDK.Credentials) => Promise<void>
+  register: (hw_device: object, details: GDK.Credentials | GDK.PinCredentials) => Promise<void>
+  login: (hw_device: object, details: GDK.Credentials | GDK.PinCredentials) => Promise<void>
   getSubaccounts: (details: { refresh: boolean }) => Promise<{
     subaccounts: GDK.Subaccount[]
   }>
@@ -34,5 +34,6 @@ export interface GdkNativeInterface {
   signTransaction: (details: GDK.BlindedTransaction | GDK.UnsignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
   sendTransaction: (details: GDK.SignedBlindedTransaction | GDK.SignedTransaction) => Promise<GDK.SignedBlindedTransaction | GDK.SignedTransaction>
   broadcastTransaction: (txHex: string) => Promise<string>
-  signPsbt: (details: GDK.PsbtSignDetails) => Promise<object>
+  signPsbt: (details: GDK.PsbtSignDetails) => Promise<{ psbt: string }>
+  getBalance: (details: GDK.GetSubaccountReq) => Promise<{ [assetId: string]: number }>
 }

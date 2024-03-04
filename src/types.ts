@@ -12,6 +12,16 @@ export type Credentials = {
   mnemonic: string
   password: string
 }
+
+export type PinCredentials = {
+  pin: string
+  pin_data: {
+    encrypted_data: string
+    pin_identifier: string
+    salt: string
+  }
+}
+
 export type SubaccountType = "p2sh-p2wpkh" | "p2wpkh" | "p2pkh" | "2of2_no_recovery" | "2of3"
 export type AddressType = "csv" | "p2sh" | "p2wsh" | "p2pkh" | "p2sh-p2wpkh" | "p2wpkh"
 export type CreateSubaccountDetails = {

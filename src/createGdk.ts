@@ -29,13 +29,13 @@ export interface GdkInterface {
    * @param hw_device - leave empty
    * @param userAgent - credentials used to authenticate the user
    */
-  register: (hw_device: object, details: GDK.Credentials) => Promise<void>
+  register: (hw_device: object, details: GDK.Credentials | GDK.PinCredentials) => Promise<void>
   /**
    * Logs in a user to gdk
    * @param hw_device - leave empty
    * @param userAgent - credentials used to authenticate the user
    */
-  login: (hw_device: object, details: GDK.Credentials) => Promise<void>
+  login: (hw_device: object, details: GDK.Credentials | GDK.PinCredentials) => Promise<void>
   /**
    * Lists the user's subaccounts
    * @param details - subaccount details containing `refresh` If set to true, subaccounts are re-discovered if appropriate for the session type. Note that this will take significantly more time if set
@@ -139,7 +139,8 @@ export interface GdkInterface {
    * @returns the transaction hash
    */
   broadcastTransaction: (txHex: string) => Promise<string>
-  signPsbt: (details: GDK.PsbtSignDetails) => Promise<object>
+  signPsbt: (details: GDK.PsbtSignDetails) => Promise<{ psbt: string }>
+  getBalance: (details: GDK.GetSubaccountReq) => Promise<{ [assetId: string]: number }>
 }
 
 declare global {
@@ -215,6 +216,7 @@ export const createGdk = (): GdkInterface => {
     sendTransaction: gdk.sendTransaction,
     broadcastTransaction: gdk.broadcastTransaction,
     getNetworks: gdk.getNetworks,
-    signPsbt: gdk.signPsbt
+    signPsbt: gdk.signPsbt,
+    getBalance: gdk.getBalance
   }
 }

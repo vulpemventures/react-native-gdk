@@ -36,6 +36,7 @@ std::vector<jsi::PropNameID> GdkHostObject::getPropertyNames(jsi::Runtime& rt) {
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("validateMnemonic")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getTransactions")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getUnspentOutputs")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getBalance")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("refresh")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getFeeEstimates")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPreviousAddresses")));
@@ -562,6 +563,52 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                         try {
                             GA_auth_handler *call;
                             utils::wrapCall(GA_get_unspent_outputs(session, details, &call));
+                            json res = utils::resolve(call);
+                            GA_destroy_json(details);
+                            
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=, &rt] {
+                                if (res.contains("result")) {
+                                    p->resolve(utils::parse(rt, res["result"].dump()));
+                                } else {
+                                    p->reject(res["error"].dump());
+                                }
+                            });
+                            
+                        } catch (utils::Exception e) {
+                            GA_destroy_json(details);
+                            std::shared_ptr<react::CallInvoker> c = invoker.lock();
+                            c->invokeAsync([=] { p->reject(e.what()); });
+                        }
+                    };
+                    
+                    pool->queueWork(task);
+                                    
+                };
+
+                return utils::makePromise(runtime, func);
+        });
+    }
+    
+    if (propName == "getBalance") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+
+                GA_json *details;
+                utils::jsiValueJsonToGAJson(runtime, arguments[0].getObject(runtime), &details);
+                
+                utils::Promised func = [=](jsi::Runtime& rt, std::shared_ptr<utils::Promise> p){
+                                    
+                    auto task = [=, &rt](){
+                        try {
+                            GA_auth_handler *call;
+                            utils::wrapCall(GA_get_balance(session, details, &call));
                             json res = utils::resolve(call);
                             GA_destroy_json(details);
                             

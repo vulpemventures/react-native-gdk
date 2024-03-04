@@ -120,6 +120,13 @@ const App: React.FunctionComponent = () => {
             console.log("ERROR", error)
           }
         }} />
+        <Button title="get balance" onPress={async() => {
+          try {
+            console.log(await gdk.getBalance({ subaccount: 1, num_confs: 0 }))
+          } catch (error) {
+            console.log("ERROR", error)
+          }
+        }} />
         <Button title="get prev addresses" onPress={async() => {
           try {
             console.log(await gdk.getPreviousAddresses({ subaccount: 1 }))
