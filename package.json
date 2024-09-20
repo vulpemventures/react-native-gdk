@@ -1,5 +1,5 @@
 {
-  "name": "@vulpemventures/react-native-gdk",
+  "name": "@Outlogic-Sagl/react-native-gdk",
   "version": "0.0.5",
   "description": "react native turbomodule cpp for gdk",
   "main": "lib/commonjs/index",
@@ -46,16 +46,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vulpemventures/react-native-gdk/react-native-gdk.git"
+    "url": "git+https://github.com/Outlogic-Sagl/react-native-gdk/react-native-gdk.git"
   },
-  "author": "mattiaferrari <mattia.ferrari@soluzionifutura.it> (https://github.com/vulpemventures/react-native-gdk)",
+  "author": "mattiaferrari <mattia.ferrari@soluzionifutura.it> (https://github.com/Outlogic-Sagl/react-native-gdk)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/vulpemventures/react-native-gdk/react-native-gdk/issues"
+    "url": "https://github.com/Outlogic-Sagl/react-native-gdk/react-native-gdk/issues"
   },
-  "homepage": "https://github.com/vulpemventures/react-native-gdk/react-native-gdk#readme",
+  "homepage": "https://github.com/Outlogic-Sagl/react-native-gdk/react-native-gdk#readme",
   "publishConfig": {
-    "@vulpemventures:registry": "https://npm.pkg.github.com"
+    "@Outlogic-Sagl:registry": "https://npm.pkg.github.com"
   },
   "devDependencies": {
     "@react-native/eslint-config": "^0.72.2",

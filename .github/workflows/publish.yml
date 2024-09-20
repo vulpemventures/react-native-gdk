@@ -14,7 +14,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           registry-url: https://npm.pkg.github.com/
-          scope: '@vulpemventures'
+          scope: '@Outlogic-Sagl'
 
       - name: Install npm dependencies
         run: yarn install --immutable
