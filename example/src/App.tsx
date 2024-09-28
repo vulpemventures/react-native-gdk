@@ -7,7 +7,7 @@ import {
   Button,
   ScrollView
 } from "react-native"
-import Gdk from "@Outlogic-Sagl/react-native-gdk"
+import Gdk from "@outlogic-sagl/react-native-gdk"
 
 const gdk = Gdk()
 

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "@Outlogic-Sagl/react-native-gdk": ["./src/index"]
+      "@outlogic-sagl/react-native-gdk": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

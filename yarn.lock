@@ -5,9 +5,9 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@Outlogic-Sagl/react-native-gdk@workspace:.":
+"@outlogic-sagl/react-native-gdk@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@Outlogic-Sagl/react-native-gdk@workspace:."
+  resolution: "@outlogic-sagl/react-native-gdk@workspace:."
   dependencies:
     "@react-native/eslint-config": ^0.72.2
     "@release-it/conventional-changelog": ^5.0.0

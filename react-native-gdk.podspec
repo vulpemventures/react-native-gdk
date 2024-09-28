@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.platforms    = { :ios => "11.0" }
-  s.source       = { :git => "https://github.com/Outlogic-Sagl/react-native-gdk/react-native-gdk.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/outlogic-sagl/react-native-gdk/react-native-gdk.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm}", "cpp/**/*.{hpp,cpp,c,h}"
   s.vendored_framework = "libgreenaddress_full.xcframework"

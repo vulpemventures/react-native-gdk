@@ -9,9 +9,9 @@ React Native integration of [Green Development Kit](https://github.com/Blockstre
 </h3>
 
 ```bash
-npm install @Outlogic-Sagl/react-native-gdk
+npm install @outlogic-sagl/react-native-gdk
 # or
-yarn add @Outlogic-Sagl/react-native-gdk
+yarn add @outlogic-sagl/react-native-gdk
 # and then
 cd ios && pod install
 ```
@@ -20,7 +20,7 @@ cd ios && pod install
 </h3>
 
 ```bash
-yarn add @Outlogic-Sagl/react-native-gdk
+yarn add @outlogic-sagl/react-native-gdk
 # and then
 expo prebuild
 ```
