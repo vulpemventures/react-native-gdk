@@ -1,6 +1,6 @@
 {
   "name": "@outlogic-sagl/react-native-gdk",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "react native turbomodule cpp for gdk",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
