@@ -107,7 +107,7 @@ export type Subaccount = {
   bip44_discovered: false
   hidden: false
   name: ""
-  pointer: 0
+  pointer: number
   receiving_id: ""
   required_ca: 0
   type: SubaccountType
@@ -119,7 +119,7 @@ export type ReceiveAddressType = {
   blinding_key: string
   is_confidential: boolean
   is_internal: boolean
-  pointer: boolean
+  pointer: number
   scriptpubkey: string
   subaccount: number
   unconfidential_address: string
