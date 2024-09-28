@@ -50,6 +50,7 @@ std::vector<jsi::PropNameID> GdkHostObject::getPropertyNames(jsi::Runtime& rt) {
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("broadcastTransaction")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNetworks")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("signPsbt")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("registerNetwork")));
     return result;
 }
 
@@ -1150,6 +1151,30 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             };
 
             return utils::makePromise(runtime, func);
+        });
+    }
+  
+    if (propName == "registerNetwork") {
+            return jsi::Function::createFromHostFunction(runtime,
+                                                         jsi::PropNameID::forAscii(runtime, funcName),
+                                                         1,
+                                                         [this](jsi::Runtime& runtime,
+                                                                const jsi::Value& thisValue,
+                                                                const jsi::Value* arguments,
+                                                                size_t count) -> jsi::Value {
+
+            GA_json *network_details;
+            utils::jsiValueJsonToGAJson(runtime, arguments[1].getObject(runtime), &network_details);
+            std::string name = arguments[0].getString(runtime).utf8(runtime);
+
+              
+            
+              
+            utils::wrapCall(GA_register_network(mnemonic.c_str(), network_details));
+
+            GA_destroy_json(network_details)
+              
+            return jsi::Value::undefined();
         });
     }
 
