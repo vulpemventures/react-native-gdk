@@ -36,4 +36,5 @@ export interface GdkNativeInterface {
   broadcastTransaction: (txHex: string) => Promise<string>
   signPsbt: (details: GDK.PsbtSignDetails) => Promise<{ psbt: string }>
   getBalance: (details: GDK.GetSubaccountReq) => Promise<{ [assetId: string]: number }>
+  registerNetwork: (name: string, network: GDK.NetworkDetails) => void
 }
