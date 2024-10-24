@@ -51,6 +51,7 @@ std::vector<jsi::PropNameID> GdkHostObject::getPropertyNames(jsi::Runtime& rt) {
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNetworks")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("signPsbt")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("registerNetwork")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("destroySession")));
     return result;
 }
 
@@ -59,6 +60,23 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
     auto propName = propNameId.utf8(runtime);
     auto funcName = "gdk." + propName;
 
+  if (propName == "destroySession") {
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forAscii(runtime, funcName),
+                                                 0,
+                                                 [this](jsi::Runtime& runtime,
+                                                        const jsi::Value& thisValue,
+                                                        const jsi::Value* arguments,
+                                                        size_t count) -> jsi::Value {
+
+      GA_set_notification_handler(session, nullptr, nullptr);
+      utils::wrapCall(GA_destroy_session(session));
+
+
+      return jsi::Value::undefined();
+    });
+  }
+  
     if (propName == "generateMnemonic12") {
         return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),

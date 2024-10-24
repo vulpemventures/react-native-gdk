@@ -142,6 +142,7 @@ export interface GdkInterface {
   signPsbt: (details: GDK.PsbtSignDetails) => Promise<{ psbt: string }>
   getBalance: (details: GDK.GetSubaccountReq) => Promise<{ [assetId: string]: number }>
   registerNetwork: (name: string, network: GDK.NetworkDetails) => void
+  destroySession: () => void
 }
 
 declare global {
@@ -219,6 +220,7 @@ export const createGdk = (): GdkInterface => {
     getNetworks: gdk.getNetworks,
     signPsbt: gdk.signPsbt,
     getBalance: gdk.getBalance,
-    registerNetwork: gdk.registerNetwork
+    registerNetwork: gdk.registerNetwork,
+    destroySession: gdk.destroySession
   }
 }

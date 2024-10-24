@@ -60,6 +60,13 @@ const App: React.FunctionComponent = () => {
             console.log("ERROR", error)
           }
         }} />
+        <Button title="destroy session" onPress={async() => {
+          try {
+            console.log(gdk.destroySession())
+          } catch (error) {
+            console.log("ERROR", error)
+          }
+        }} />
         <Button title="login" onPress={async() => {
           try {
             console.log(await gdk.login({}, { mnemonic, password: "" }))
