@@ -37,4 +37,5 @@ export interface GdkNativeInterface {
   signPsbt: (details: GDK.PsbtSignDetails) => Promise<{ psbt: string }>
   getBalance: (details: GDK.GetSubaccountReq) => Promise<{ [assetId: string]: number }>
   registerNetwork: (name: string, network: GDK.NetworkDetails) => void
+  destroySession: () => void
 }
