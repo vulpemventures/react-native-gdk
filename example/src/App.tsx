@@ -13,7 +13,7 @@ const gdk = Gdk()
 
 
 const App: React.FunctionComponent = () => {
-  const [mnemonic] = React.useState(gdk.generateMnemonic12())
+  const [mnemonic, setMnemonic] = React.useState(gdk.generateMnemonic12())
   const [connected, setConnected] = React.useState(false)
   const called = React.useRef(false)
 
@@ -50,6 +50,12 @@ const App: React.FunctionComponent = () => {
       <ScrollView>
         <Text>mnemonic: {mnemonic}</Text>
         <Text>Connected: {connected ? "yes" : "no"}</Text>
+        <Button title="createSession" onPress={() => {
+          gdk.createSession()
+        }} />
+        <Button title="gen mnmemonic" onPress={() => {
+          setMnemonic(gdk.generateMnemonic12())
+        }} />
         <Button title="connect" onPress={() => {
           gdk.connect("electrum-testnet-liquid", "test-app")
         }} />

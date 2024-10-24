@@ -13,12 +13,16 @@ using json = nlohmann::json;
 GdkHostObject::GdkHostObject(std::string dirUrl, jsi::Runtime &runtime, std::shared_ptr<react::CallInvoker> jsCallInvoker): invoker(jsCallInvoker), rt(runtime) {
     sessionDirectoryUrl = dirUrl;
     pool = std::make_shared<ThreadPool>();
-
+    session = NULL;
 }
 
 GdkHostObject::~GdkHostObject() {
+    
+  if(session != nullptr) {
     GA_set_notification_handler(session, nullptr, nullptr);
     GA_destroy_session(session);
+  }
+
 }
 
 
@@ -71,6 +75,8 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
       GA_set_notification_handler(session, nullptr, nullptr);
       utils::wrapCall(GA_destroy_session(session));
+      
+      session = NULL;
 
 
       return jsi::Value::undefined();
@@ -130,8 +136,16 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                                 const jsi::Value& thisValue,
                                                                 const jsi::Value* arguments,
                                                                 size_t count) -> jsi::Value {
-
-            utils::wrapCall(GA_create_session(&session));
+            if (session != NULL) {
+              throw new jsi::JSError(runtime, "Cannot recreate session. Call destroy before");
+            }
+            
+            GA_session* newSession;
+              
+              
+            utils::wrapCall(GA_create_session(&newSession));
+              
+              session = newSession;
 
             utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this));
 
