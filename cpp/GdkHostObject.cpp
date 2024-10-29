@@ -17,7 +17,7 @@ GdkHostObject::GdkHostObject(std::string dirUrl, jsi::Runtime &runtime, std::sha
 }
 
 GdkHostObject::~GdkHostObject() {
-    
+
   if(session != nullptr) {
     GA_set_notification_handler(session, nullptr, nullptr);
     GA_destroy_session(session);
@@ -73,16 +73,18 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
                                                         const jsi::Value* arguments,
                                                         size_t count) -> jsi::Value {
 
-      GA_set_notification_handler(session, nullptr, nullptr);
-      utils::wrapCall(GA_destroy_session(session));
-      
-      session = NULL;
+      if (session != NULL) {
+        GA_set_notification_handler(session, nullptr, nullptr);
+        utils::wrapCall(GA_destroy_session(session));
+        session = NULL;
+      }
+
 
 
       return jsi::Value::undefined();
     });
   }
-  
+
     if (propName == "generateMnemonic12") {
         return jsi::Function::createFromHostFunction(runtime,
                                                          jsi::PropNameID::forAscii(runtime, funcName),
@@ -139,12 +141,12 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
             if (session != NULL) {
               throw new jsi::JSError(runtime, "Cannot recreate session. Call destroy before");
             }
-            
+
             GA_session* newSession;
-              
-              
+
+
             utils::wrapCall(GA_create_session(&newSession));
-              
+
               session = newSession;
 
             utils::wrapCall(GA_set_notification_handler(session, utils::notificationsHandler, this));
