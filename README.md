@@ -1,7 +1,8 @@
 # react-native-gdk
 React Native integration of [Green Development Kit](https://github.com/Blockstream/gdk) for Liquid Bitcoin.
 * Made entirely using JSI (JavaScript Interface) for React Native.
-* Currently using GDK [Release 0.69.0](https://github.com/Blockstream/gdk/releases/tag/release_0.69.0)
+* Currently using GDK [Release 0.71.3](https://github.com/Blockstream/gdk/releases/tag/release_0.71.3)
+  * GDK v0.71.3 [Docs](https://gdk.readthedocs.io/en/release_0.71.3/)
 
 ## Installation
 <h3>

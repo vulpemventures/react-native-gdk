@@ -56,4 +56,4 @@ To call safely this function we need to use the same logic that we are applying 
 - js receives the events and can handle them
 
 ## Useful links
-- https://gdk.readthedocs.io/en/release_0.69.0
+- https://gdk.readthedocs.io/en/latest/
