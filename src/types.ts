@@ -1,12 +1,16 @@
 export type Network =
-  "mainnet" |
-  "liquid" |
-  "testnet" |
-  "testnet-liquid" |
-  "electrum-liquid" |
-  "electrum-mainnet" |
-  "electrum-testnet" |
-  "electrum-testnet-liquid"
+  | "mainnet"
+  | "liquid"
+  | "testnet"
+  | "testnet-liquid"
+  | "electrum-liquid"
+  | "electrum-mainnet"
+  | "electrum-testnet"
+  | "electrum-testnet-liquid"
+  // `string & {}` allows us to have autocompletion
+  // but also allows other string values as we can register new networks
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  | string & { }
 
 export type Credentials = {
   mnemonic: string
