@@ -6,7 +6,17 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "gdk_export.h"
+#if defined(_WIN32)
+#ifdef GDK_BUILD
+#define GDK_API __declspec(dllexport)
+#else
+#define GDK_API
+#endif
+#elif defined(__GNUC__) && defined(GDK_BUILD)
+#define GDK_API __attribute__((visibility("default")))
+#else
+#define GDK_API
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -153,6 +163,7 @@ GDK_API int GA_get_proxy_settings(struct GA_session* session, GA_json** output);
  * :param net_params: The :ref:`net-params` of the network to compute an identifier for.
  * :param params: The :ref:`wallet-id-request` to compute an identifier for.
  * :param output: Destination for the output JSON.
+ *|     The call handlers result is :ref:`login-result`.
  *|     Returned GA_json should be freed using `GA_destroy_json`.
  */
 GDK_API int GA_get_wallet_identifier(const GA_json* net_params, const GA_json* params, GA_json** output);
@@ -222,6 +233,7 @@ GDK_API int GA_validate(struct GA_session* session, GA_json* details, struct GA_
  * :param hw_device: :ref:`hw-device` or empty JSON for software wallet registration.
  * :param details: The :ref:`login-credentials` for software wallet registration.
  * :param call: Destination for the resulting GA_auth_handler to perform the registration.
+ *|     The call handlers result is :ref:`login-result`.
  *|     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
  *
  * .. note:: When calling from C/C++, the parameters ``hw_device`` and ``details`` will be emptied when the call
@@ -237,6 +249,7 @@ GDK_API int GA_register_user(
  * :param hw_device: :ref:`hw-device` or empty JSON for software wallet login.
  * :param details: The :ref:`login-credentials` for authenticating the user.
  * :param call: Destination for the resulting GA_auth_handler to perform the login.
+ *|     The call handlers result is :ref:`login-result`.
  *|     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
  *
  * If a sessions underlying network connection has disconnected and
@@ -329,19 +342,6 @@ GDK_API int GA_get_subaccounts(struct GA_session* session, const GA_json* detail
  *|     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
  */
 GDK_API int GA_get_subaccount(struct GA_session* session, uint32_t subaccount, struct GA_auth_handler** call);
-
-/**
- * Rename a subaccount.
- *
- * :param session: The session to use.
- * :param subaccount: The value of ``"pointer"`` from :ref:`subaccount-list` or
- *|                   :ref:`subaccount-detail` for the subaccount to rename.
- * :param new_name: New name for the subaccount.
- *
- * .. note:: This call is deprecated and will be removed in a future release. Use
- *|          `GA_update_subaccount` to rename subaccounts.
- */
-GDK_API int GA_rename_subaccount(struct GA_session* session, uint32_t subaccount, const char* new_name);
 
 /**
  * Update subaccount information.
@@ -593,6 +593,9 @@ GDK_API int GA_complete_swap_transaction(
  * .. note:: EXPERIMENTAL warning: this call may be changed in future releases.
  */
 GDK_API int GA_psbt_sign(struct GA_session* session, GA_json* details, struct GA_auth_handler** call);
+
+/* Experimental API: not for public use */
+GDK_API int GA_psbt_from_json(struct GA_session* session, GA_json* details, struct GA_auth_handler** call);
 
 /**
  * Get wallet details of a PSBT or PSET.
@@ -977,7 +980,9 @@ GDK_API int GA_bcur_encode(struct GA_session* session, GA_json* details, struct 
  *|     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
  *
  * For multi-part data, the call hander will request further parts using
- * ``"request_code"`` with a method of ``"data"``. see: `auth-handler-status`.
+ * ``"request_code"`` with a method of ``"data"``. see: `auth-handler-status` for
+ * details on the general mechanism and `bcur-decode-auth-handler-status` for
+ * details on the data passed to and expected from the auth handler.
  *
  * .. note:: When calling from C/C++, the parameter ``details`` will be emptied when the call completes.
  */
