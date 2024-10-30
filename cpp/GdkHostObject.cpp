@@ -1206,7 +1206,6 @@ jsi::Value GdkHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
 
             utils::wrapCall(GA_register_network(name.c_str(), network_details));
 
-//            GA_destroy_json(network_details);
 
             return jsi::Value::undefined();
         });
