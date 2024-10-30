@@ -24,12 +24,12 @@ check_command lipo
 rm -f gdk-iphone.tar.gz gdk-iphone-sim.tar.gz gdk-iphone-sim-x86_64.tar.gz libgreenaddress_full.a
 rm -rf gdk-iphone gdk-iphonesim-arm64 gdk-iphonesim-x86_64 libgreenaddress_full.xcframework
 
-VERSION="release_0.69.0"
+VERSION="release_0.71.3"
 
 echo "Fetching gdk prebuilt for iphone physical devices..."
 
 # The version of gdk to fetch and its sha256 checksum for integrity checking
-DEVICE_SHA256="78d0bf3baad0669d3e66a300e7641344711fee66cca59787f7062198bf87284d"
+DEVICE_SHA256="8c5be13bd8cbfaba6bb0e8bfb10fda89541010e15bfee062e8ed6ce468fc48b5"
 # Setup gdk version and url
 DEVICE_TARBALL="gdk-iphone.tar.gz"
 DEVICE_URL="https://github.com/Blockstream/gdk/releases/download/${VERSION}/${DEVICE_TARBALL}"
@@ -51,7 +51,7 @@ echo "Fetching gdk prebuilt for arm64 simulator devices..."
 
 
 # The version of gdk to fetch and its sha256 checksum for integrity checking
-SIM_SHA256="681a775db437b9adb79f9f86f4dc0563b8abdd9d48588958bdf3a96606eb810c"
+SIM_SHA256="ca6f71031aba6af807ac12172fc0cd15e7ff4ee3873d77ae46efe1b748f8702c"
 # Setup gdk version and url
 SIM_TARBALL="gdk-iphone-sim.tar.gz"
 SIM_URL="https://github.com/Blockstream/gdk/releases/download/${VERSION}/${SIM_TARBALL}"
@@ -66,7 +66,7 @@ echo "Fetching gdk prebuilt for intel simulator devices..."
 
 
 # The version of gdk to fetch and its sha256 checksum for integrity checking
-INTEL_SHA256="c4a2e025a74adf0a1be8882339c8c3f050fdb53137681df4f71883a981d68d41"
+INTEL_SHA256="42f5f78d2da0667f291ec43e5c1505cd100967eba812958f406ea9547e1f7242"
 # Setup gdk version and url
 INTEL_TARBALL="gdk-iphone-sim-x86_64.tar.gz"
 INTEL_URL="https://github.com/Blockstream/gdk/releases/download/${VERSION}/${INTEL_TARBALL}"

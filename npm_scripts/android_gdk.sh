@@ -18,9 +18,9 @@ check_command curl
 check_command gzip
 check_command shasum
 
-VERSION="release_0.69.0"
+VERSION="release_0.71.3"
 TARBALL="gdk-android-jni.tar.gz"
-SHA256=dac38c75b0230e968de63c5ba8f08575c4651727b8676c6438b3e529818e967f
+SHA256=6c379748f218493757cd7b1a49e5a032bd61c254e76928292c03601546b6baae
 
 
 URL="https://github.com/Blockstream/gdk/releases/download/${VERSION}/${TARBALL}"
