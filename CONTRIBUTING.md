@@ -43,9 +43,13 @@ yarn example android
 
 To run the example app on iOS:
 
+> You might need to install pods first `cd example/ios && pod install`
+
 ```sh
 yarn example ios
 ```
+
+> If this command doesn't work correctly, try starting the app by opening `example/ios` from Xcode and build the app from there.
 
 To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
 
