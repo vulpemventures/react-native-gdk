@@ -60,6 +60,13 @@ typedef void (*GA_notification_handler)(void* context, GA_json* details);
  */
 GDK_API int GA_init(const GA_json* config);
 
+/**
+ * Completely shut down the library, releasing all resources.
+ *
+ * No further GDK calls should be made after this call.
+ */
+GDK_API int GA_shutdown(void);
+
 #ifndef SWIG
 /**
  * Get any error details associated with the last error on the current thread.
@@ -169,6 +176,17 @@ GDK_API int GA_get_proxy_settings(struct GA_session* session, GA_json** output);
 GDK_API int GA_get_wallet_identifier(const GA_json* net_params, const GA_json* params, GA_json** output);
 
 /**
+ * Operate on cached session data.
+ *
+ * :param session: The session to use.
+ * :param details: The :ref:`cache-control-request` giving the operation to perform.
+ * :param call: Destination for the resulting GA_auth_handler to complete the action.
+ *|     The call handlers result is :ref:`cache-control-result`.
+ *|     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
+ */
+GDK_API int GA_cache_control(struct GA_session* session, GA_json* details, struct GA_auth_handler** call);
+
+/**
  * Make a request to an http server.
  *
  * :param session: The session to use.
@@ -227,15 +245,16 @@ GDK_API int GA_validate_asset_domain_name(struct GA_session* session, const GA_j
 GDK_API int GA_validate(struct GA_session* session, GA_json* details, struct GA_auth_handler** call);
 
 /**
- * Create a new user wallet.
+ * Create a new user wallet or watch only session.
  *
  * :param session: The session to use.
- * :param hw_device: :ref:`hw-device` or empty JSON for software wallet registration.
- * :param details: The :ref:`login-credentials` for software wallet registration.
+ * :param hw_device: :ref:`hw-device` or empty JSON for software wallet/watch only registration.
+ * :param details: The :ref:`login-credentials` for software wallet/watch only registration.
  * :param call: Destination for the resulting GA_auth_handler to perform the registration.
  *|     The call handlers result is :ref:`login-result`.
  *|     Returned GA_auth_handler should be freed using `GA_destroy_auth_handler`.
  *
+ * .. note:: When registering a watch only session, the calling session must be logged in.
  * .. note:: When calling from C/C++, the parameters ``hw_device`` and ``details`` will be emptied when the call
  *completes.
  */
@@ -262,15 +281,6 @@ GDK_API int GA_register_user(
  */
 GDK_API int GA_login_user(
     struct GA_session* session, GA_json* hw_device, GA_json* details, struct GA_auth_handler** call);
-
-/**
- * Set or disable a watch-only login for a logged-in user wallet.
- *
- * :param session: The session to use.
- * :param username: The watch-only username to login with, or a blank string to disable.
- * :param password: The watch-only password to login with, or a blank string to disable.
- */
-GDK_API int GA_set_watch_only(struct GA_session* session, const char* username, const char* password);
 
 /**
  * Get the current watch-only login for a logged-in user wallet, if any.
