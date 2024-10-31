@@ -2,7 +2,7 @@
  * Keep this file for compatibility with the prebuilt binaries
  * ----------------------------------------------------------------------------- */
 
-package com.blockstream.libgreenaddress;
+package com.blockstream.libgreen_gdk;
 
 public class GDKJNI {
     // JSON conversion

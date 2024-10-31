@@ -20,7 +20,7 @@ react-native-gdk
 │   ├── cpp-adapter.cpp
 │   ├── build.gradle
 │   └── src/main/java/com
-│       ├── blockstream/libgreenaddress
+│       ├── blockstream/libgreen_gdk
 │       │   └── GDKJNI.java
 │       └── gdk
 │           ├── GdkModule.java
@@ -36,14 +36,14 @@ react-native-gdk
 `ios`
 - `NativeGdk.h` and `NativeGdk.mm` are the files that holds the native code for iOS. These expose the `install` native method that will be called from JavaScript and will create the GDK host object
 - `react-native-gdk.podspec` is a file that tells `xcodebuild` how to compile the `cpp` folder, `ios` folder and eventually link external libraries like *gdk prebuilts*
-- `libgreenaddress_full.xcframework` is the prebuilt library that holds the GDK code compatible with iOS arm64 (both simulator and phisical device) and x86_64 architectures
+- `libgreen_gdk_full.xcframework` is the prebuilt library that holds the GDK code compatible with iOS arm64 (both simulator and phisical device) and x86_64 architectures
 
 `android`
 - `GDKJNI.java` is a file only needed to make the GDK prebuilts work correctly. We can ignore that.
 - `GdkModule.java` and `GdkPackage.java` are the files that holds the native code for Android. These expose the `install` native method that will be called from JavaScript and will create the GDK host object
 - `cpp-adapter.cpp` holds JNI specific code that bridge communincation between Java and C++ code
 - `CMakeLists.txt` is a file that tells `ndk-build` how to compile the `cpp` folder and eventually link external libraries like *gdk prebuilts*
-- `libgreenaddress-android` is the prebuilt library that holds the code compatible with Android arm64-v8a, x86_64, armeabi-v7a and x86 architectures
+- `libgreen_gdk-android` is the prebuilt library that holds the code compatible with Android arm64-v8a, x86_64, armeabi-v7a and x86 architectures
 
 `cpp`
 - Contains all the non platform specific code, the core of the application that will be compiled for both platforms

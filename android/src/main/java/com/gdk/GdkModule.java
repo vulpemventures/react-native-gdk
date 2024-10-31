@@ -10,7 +10,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
-import com.blockstream.libgreenaddress.GDKJNI;
+import com.blockstream.libgreen_gdk.GDKJNI;
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 

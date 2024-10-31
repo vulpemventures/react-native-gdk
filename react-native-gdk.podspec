@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/vulpemventures/react-native-gdk/react-native-gdk.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm}", "cpp/**/*.{hpp,cpp,c,h}"
-  s.vendored_framework = "libgreenaddress_full.xcframework"
+  s.vendored_framework = "libgreen_gdk_full.xcframework"
 
   s.dependency "React-Core"
   s.dependency "React"

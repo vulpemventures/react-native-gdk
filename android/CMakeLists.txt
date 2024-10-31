@@ -50,7 +50,7 @@ set_target_properties(
     ga
     PROPERTIES
     IMPORTED_LOCATION
-    ${CMAKE_SOURCE_DIR}/../libgreenaddress-android/${CMAKE_ANDROID_ARCH_ABI}/libgreenaddress.so
+    ${CMAKE_SOURCE_DIR}/../libgreen_gdk-android/${CMAKE_ANDROID_ARCH_ABI}/libgreen_gdk_java.so
 )
 
 

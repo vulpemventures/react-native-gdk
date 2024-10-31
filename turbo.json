@@ -5,7 +5,7 @@
       "inputs": [
         "package.json",
         "android",
-        "libgreenaddress-android",
+        "libgreen_gdk-android",
         "!android/build",
         "cpp",
         "src/*.ts",
@@ -22,7 +22,7 @@
       "inputs": [
         "package.json",
         "*.podspec",
-        "libgreenaddress_full.xcframework",
+        "libgreen_gdk_full.xcframework",
         "ios",
         "cpp",
         "src/*.ts",
