@@ -20,4 +20,8 @@ Pod::Spec.new do |s|
   s.dependency "React"
   s.dependency "React-callinvoker"
   s.dependency "ReactCommon/turbomodule/core"
+
+  s.pod_target_xcconfig = {
+   'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
+  }
 end
